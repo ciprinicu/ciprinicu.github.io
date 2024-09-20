@@ -5,30 +5,51 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 
 <body style="display: none;">
-    <nav class="sidenav">
-        <div class="sidebar">
-            <h1>Niculae <br>Ciprian-Mihai</h1>
-            <span>Bine ai venit la portofoliul meu!</span>
-            <a href="intro.html">Salutare!</a>
-            <a href=""><b>Portofoliu</b></a>
-            <ul class="pList">
-                <li><a href="/portofoliu/nunti/nunti.html">Nunti</a></li>
-                <li><a href="">Gratare</a></li>
-                <li><a href="">Portrete</a></li>
-            </ul>
-            <a href="">Preturi</a>
-            <a href="">Contact</a>
-        </div>
-    </nav>
-
-    <div>
-
+    <div class="content">
+        <nav class="sidenav">
+            <div class="mobilebar">
+                <i class="fa-solid fa-bars"></i>
+            </div>
+            <div class="sidebar">
+                <h1>Niculae <br>Ciprian-Mihai</h1>
+                <span>Bine ai venit la portofoliul meu!</span>
+                <a href="/intro.html">Salutare!</a>
+                <a href="/portofoliu.html"><b>Portofoliu</b></a>
+                <ul class="pList">
+                    <li><a href="/portofoliu/nunti.html">Nunti</a></li>
+                    <li><a href="/portofoliu/gratare.html">Gratare</a></li>
+                    <li><a href="/portofoliu/portrete.html">Portrete</a></li>
+                </ul>
+                <a href="">Preturi</a>
+                <a href="">Contact</a>
+            </div>
+        </nav>
     </div>
 
     <script>
+        $("body > div.content > nav > div.mobilebar > i").click(function () {
+            var isbar = document.querySelector("body > div.content > nav > div.sidebar").style.display == "block";
+            if (isbar) {
+                document.querySelector("body > div.content > nav > div.sidebar").style.display = "none"
+                document.querySelector("body > div.content > div").style.display = "block"
+            } else {
+                document.querySelector("body > div.content > nav > div.sidebar").style.display = "block"
+                document.querySelector("body > div.content > div").style.display = "none"
+            }
+        });
+
+        $("body > div.content > nav > div.sidebar").click(function () {
+            var isbar = document.querySelector("body > div.content > nav > div.sidebar").style.display == "block";
+            if (isbar) {
+                document.querySelector("body > div.content > nav > div.sidebar").style.display = "none"
+                document.querySelector("body > div.content > div").style.display = "block"
+            }
+        });
+
         $(document).ready(function () {
 
             $('body').css('display', 'none');

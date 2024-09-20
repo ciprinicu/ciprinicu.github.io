@@ -7,30 +7,60 @@
     <link rel="stylesheet" href="../style.css">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 
 <body style="display: none;">
-    <nav class="sidenav">
-        <div class="sidebar">
-            <h1>Niculae <br>Ciprian-Mihai</h1>
-            <span>Bine ai venit la portofoliul meu!</span>
-            <a href="intro.html">Salutare!</a>
-            <a href=""><b>Portofoliu</b></a>
-            <ul class="pList">
-                <li><a href="/portofoliu/nunti.html"><b>Nunti</b></a></li>
-                <li><a href="/portofoliu/gratare.html">Gratare</a></li>
-                <li><a href="/portofoliu/portrete.html">Portrete</a></li>
-            </ul>
-            <a href="">Preturi</a>
-            <a href="">Contact</a>
+    <div class="content">
+        <nav class="sidenav">
+            <div class="mobilebar">
+                <i class="fa-solid fa-bars"></i>
+            </div>
+            <div class="sidebar">
+                <h1>Niculae <br>Ciprian-Mihai</h1>
+                <span>Bine ai venit la portofoliul meu!</span>
+                <a href="/intro.html">Salutare!</a>
+                <a href="/portofoliu.html"><b>Portofoliu</b></a>
+                <ul class="pList">
+                    <li><a href="/portofoliu/nunti.html"><b>Nunti</b></a></li>
+                    <li><a href="/portofoliu/gratare.html">Gratare</a></li>
+                    <li><a href="/portofoliu/portrete.html">Portrete</a></li>
+                </ul>
+                <a href="">Preturi</a>
+                <a href="">Contact</a>
+            </div>
+        </nav>
+
+        <div class="image-gallery">
+            <!-- <img src="/portofoliu/nunti/_DSC3299.jpg">
+            <img src="/portofoliu/nunti/_DSC3300.jpg">
+            <img src="/portofoliu/nunti/_DSC3304.jpg">
+            <img src="/portofoliu/nunti/_DSC3328.jpg">
+            <img src="/portofoliu/nunti/_DSC3299.jpg">
+            <img src="/portofoliu/nunti/_DSC3299.jpg"> -->
         </div>
-    </nav>
-
-    <div class="imglist">
-
     </div>
 
     <script>
+        $("body > div.content > nav > div.mobilebar > i").click(function () {
+            var isbar = document.querySelector("body > div.content > nav > div.sidebar").style.display == "block";
+            if (isbar) {
+                document.querySelector("body > div.content > nav > div.sidebar").style.display = "none"
+                document.querySelector("body > div.content > div").style.display = "block"
+            } else {
+                document.querySelector("body > div.content > nav > div.sidebar").style.display = "block"
+                document.querySelector("body > div.content > div").style.display = "none"
+            }
+        });
+
+        $("body > div.content > nav > div.sidebar").click(function () {
+            var isbar = document.querySelector("body > div.content > nav > div.sidebar").style.display == "block";
+            if (isbar) {
+                document.querySelector("body > div.content > nav > div.sidebar").style.display = "none"
+                document.querySelector("body > div.content > div").style.display = "block"
+            }
+        });
+
         var list = [
             "_DSC3299.jpg",
             "_DSC3300.jpg",
@@ -67,7 +97,9 @@
             "_DSC3497.jpg"]
 
         for (var i = 0; i < list.length; i++) {
-            $(".imglist").append("<div class=\'imgContainer\'><img src='/portofoliu/nunti/" + list[i] + "'></div>")
+            setTimeout(function (i) {
+                $(".image-gallery").append("<img class='easeload' onload='this.style.opacity=1' src='/portofoliu/nunti/" + list[i] + "'>")
+            }, 200 * i, i);
         }
 
         $(document).ready(function () {
@@ -80,15 +112,6 @@
                 }, 500);
         });
 
-        // document.querySelectorAll('[data-href]').forEach(element => {  // looping though all tags with 'data-href' in the page
-        //     // setting an onclick event listener for the element
-        //     element.onclick = () => {
-        //         $("body").fadeOut();//element.classList.add('animation') // setting animation class to element
-        //         const link = element.dataset.href || element.getAttribute('data-href'); // getting the link from the 'data-href' attribute
-        //         setTimeout(() => location.assign(link), 1000) // navigate to a new website after 3s (3000ms)
-        //     }
-
-        // })
         $('a').click(function (event) {
             event.preventDefault();
             newLocation = $(this).attr("href");
