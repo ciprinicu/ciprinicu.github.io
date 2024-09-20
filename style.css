@@ -6,6 +6,7 @@ html {
 }
 
 body {
+    height: 110%;
     background-color: white;
     margin: 0;
 }
@@ -135,6 +136,82 @@ body {
     font-weight: 900;
     font-style: normal;
     font-size: 45px;
+}
+
+.porto-gallery {
+    position: relative;
+    text-align: center;
+    text-align: center;
+    display: block;
+    float: right;
+    margin-left: 1%;
+    margin-right: 7%;
+    gap: 20px;
+    flex-flow: row wrap;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.centered {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.porto-gallery img {
+    width: auto;
+    height: 430px;
+    border: 2px solid #555;
+    margin: 5px;
+    border-radius: 10px;
+    opacity: 0;
+    transition: all 2s ease;
+    -webkit-transition: all 2s ease;
+    -moz-transition: all 2s ease;
+    -ms-transition: all 2s ease;
+    -o-transition: all 2s ease;
+}
+
+.porto-gallery h1 {
+    display: none;
+    font-family: "Roboto", sans-serif;
+    font-weight: 900;
+    font-style: normal;
+    font-size: 45px;
+}
+
+.wrapper {
+    position: relative;
+    padding: 0;
+    width: 100px;
+    display: block;
+}
+
+.text {
+    position: absolute;
+    top: 7;
+    left: 7;
+    color: #f00;
+    background-color: rgba(255, 255, 255, 0.8);
+    width: 287px;
+    height: 430px;
+    line-height: 140px;
+    text-align: center;
+    z-index: 10;
+    opacity: 0;
+    -webkit-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+}
+
+.text:hover {
+    opacity: 1;
+}
+
+img {
+    z-index: 1;
 }
 
 @media only screen and (max-width: 600px) {

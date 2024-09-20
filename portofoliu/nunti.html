@@ -18,12 +18,12 @@
             </div>
             <div class="sidebar">
                 <h1>Niculae <br>Ciprian-Mihai</h1>
-                <span>Bine ai venit la portofoliul meu!</span>
+                <span>Bine ai venit pe pagina mea!</span>
                 <a href="/index.html">Introducere</a>
                 <a href="/portofoliu.html"><b>Portofoliu</b></a>
                 <ul class="pList">
                     <li><a href="/portofoliu/nunti.html"><b>Nunti</b></a></li>
-                    <li><a href="/portofoliu/gratare.html">Gratare</a></li>
+                    <li><a href="/portofoliu/botezuri.html">Botezuri</a></li>
                     <li><a href="/portofoliu/portrete.html">Portrete</a></li>
                 </ul>
                 <a href="">Preturi</a>
@@ -100,7 +100,7 @@
 
         for (var i = 0; i < list.length; i++) {
             setTimeout(function (i) {
-                $(".image-gallery").append("<img class='easeload' onload='this.style.opacity=1' src='https://raw.githubusercontent.com/ciprinicu/ciprinicu.github.io/refs/heads/main/portofoliu/nunti/" + list[i] + "'>")
+                $(".image-gallery").append("<img onload='this.style.opacity=1' src='https://raw.githubusercontent.com/ciprinicu/ciprinicu.github.io/refs/heads/main/portofoliu/nunti/" + list[i] + "'>")
             }, 200 * i, i);
         }
 
