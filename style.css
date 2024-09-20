@@ -1,90 +1,101 @@
-@import "compass/css3";
+@import url('https://fonts.googleapis.com/css2?family=Fugaz+One&family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Changa:wght@200..800&display=swap');
 
-:root {
-    --color-dark: #1E2027;
-    --width: 280px;
-    --width-compressed: 52px;
+html {
+    background-color: black;
 }
 
-.sidenav {
+body {
+    background-color: white;
+    margin: 0;
+}
+
+.sidebar {
     position: fixed;
-    width: var(--width);
-    height: 100%;
-    background-color: var(--color-dark);
-
-    .main-buttons {
-        list-style-type: none;
-        margin: 64px 0;
-        padding: 0;
-        color: #fff;
-
-        li {
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-family: 'Open Sans', sans-serif;
-            font-size: 15px;
-            font-weight: 600;
-        }
-
-        &>li {
-            padding: 16px var(--width-compressed);
-            @include box-sizing(border-box);
-
-            .fa {
-                position: absolute;
-                left: 12px;
-                color: lighten(var(--color-dark), 16);
-            }
-
-            &:hover,
-            &:active,
-            &:focus {
-                .hidden {
-                    width: var(--width) - var(--width-compressed);
-                }
-
-                background-color: lighten(var(--color-dark), 5);
-                cursor: pointer;
-            }
-        }
-    }
-}
-
-.hidden {
-    width: 0;
-    height: 100%;
-    padding: 64px 0;
-
-    position: absolute;
+    width: 25%;
     top: 0;
-    right: 0;
+    left: 0;
+    bottom: 0;
+    background: #111;
+    padding-top: 50px;
+}
 
-    overflow: hidden;
+.sidebar h1 {
+    display: block;
+    padding-left: 20px;
+    padding-right: 20px;
+    color: #fff;
+    text-decoration: none;
+    font-family: "Fugaz One",
+        sans-serif;
+    letter-spacing: 2px;
+    font-weight: 400;
+    font-style: normal;
+    margin: 0;
+    font-size: 25px;
+    text-transform: uppercase;
+}
 
+.sidebar a {
+    display: block;
+    padding: 10px 20px;
+    color: #999999;
+    text-decoration: none;
+    font-style: normal;
+    font-family: "Kanit",
+        sans-serif;
+    letter-spacing: 2px;
+    transition: margin-left 0.4s
+}
+
+.sidebar a:hover {
+    color: white;
+    margin-left: 20px;
+    transition: 0.4s;
+}
+
+.sidebar a b {
+    color: white;
+}
+
+.sidebar span {
+    display: block;
+    font-family: "Changa", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 200;
+    font-style: normal;
+    display: block;
+    margin-top: 0;
+    margin-left: 20px;
+    padding-bottom: 40px;
+    color: #fff;
+}
+
+.sidebar ul {
     list-style-type: none;
-    background-color: lighten(var(--color-dark), 5);
-    @include transition(0.3s);
+}
 
-    li {
-        padding: 16px 24px;
+.sidebar li>a {
+    color: #ffffff86;
+}
 
-        &:hover,
-        &:active,
-        &:focus {
-            background-color: lighten(var(--color-dark), 9);
-        }
+.otherWebsite {
+    padding: 10px;
+    background-color: green;
+    color: #fff;
+    margin: 10px 0px;
+}
+
+.animation {
+    animation: fadeout 0.6s ease-in-out 1 forwards;
+}
+
+@keyframes fadeout {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
     }
 }
-
-
-body {
-    background-color: lighten(var(--color-dark), 68);
-    line-height: 30px;
-}
-
-html,
-body {
-    height: 100%;
-}
-
-@import url(https://fonts.googleapis.com/css?family=Open+Sans:600);

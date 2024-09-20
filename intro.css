@@ -1,0 +1,98 @@
+@import url('https://fonts.googleapis.com/css2?family=Fugaz+One&family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Changa:wght@200..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+
+html {
+    background-color: black;
+}
+
+body {
+    color: #fff;
+    margin: 0;
+    background: linear-gradient(rgba(0, 0, 0, 0.63), rgba(0, 0, 0, 0.63)), url("images/background.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+}
+
+.container {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    text-align: center;
+    align-items: center;
+}
+
+.container h1 {
+    text-decoration: none;
+    font-family: "Roboto", sans-serif;
+    font-weight: 900;
+    font-style: normal;
+    font-size: 45px;
+    text-transform: uppercase;
+    color: #fff;
+    margin: 0;
+}
+
+.container span {
+    font-family: "Changa", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 200;
+    font-style: normal;
+}
+
+.social a {
+    background-color: #e8e8e8;
+    border-radius: 30px;
+    color: #222222;
+    display: inline-block;
+    height: 30px;
+    line-height: 30px;
+    margin: auto 10px;
+    width: 30px;
+    font-size: 15px;
+    text-align: center;
+}
+
+.social a {
+    text-decoration: none;
+}
+
+button {
+    margin-top: 40px;
+    width: 200px;
+    height: 60px;
+    border: 2px solid #fb3d24;
+    background-color: #fb3d24;
+    border-radius: 0.9em;
+    cursor: pointer;
+    padding: 0.8em 1.2em 0.8em 1em;
+    transition: all ease-in-out 0.2s;
+    font-size: 16px;
+}
+
+button span {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    font-weight: 600;
+}
+
+button:hover {
+    background-color: #e21a00;
+}
+
+.social {
+    margin-top: 30px;
+}
+
+.social ul {
+    list-style-type: none;
+}
+
+.social li {
+    float: left;
+}

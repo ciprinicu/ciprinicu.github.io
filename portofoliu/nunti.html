@@ -1,0 +1,75 @@
+<html>
+
+</html>
+
+<head>
+    <title>Niculae Ciprian-Mihai</title>
+    <link rel="stylesheet" href="../style.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body style="display: none;">
+    <nav class="sidenav">
+        <div class="sidebar">
+            <h1>Niculae <br>Ciprian-Mihai</h1>
+            <span>Bine ai venit la portofoliul meu!</span>
+            <a href="intro.html">Salutare!</a>
+            <a href=""><b>Portofoliu</b></a>
+            <ul class="pList">
+                <li><a href="/portofoliu/nunti.html"><b>Nunti</b></a></li>
+                <li><a href="/portofoliu/gratare.html">Gratare</a></li>
+                <li><a href="/portofoliu/portrete.html">Portrete</a></li>
+            </ul>
+            <a href="">Preturi</a>
+            <a href="">Contact</a>
+        </div>
+    </nav>
+
+    <div>
+
+    </div>
+
+    <script>
+        var folder = "/portofoliu/nunti/";
+
+        $.ajax({
+            url: folder,
+            success: function (data) {
+                $(data).find("a").attr("href", function (i, val) {
+                    if (val.match(/\.(jpe?g|png|gif)$/)) {
+                        $("body").append("<img src='" + folder + val + "'>");
+                    }
+                });
+            }
+        });
+
+        $(document).ready(function () {
+
+            $('body').css('display', 'none');
+
+            setTimeout(
+                function () {
+                    $('body').fadeIn(1000);
+                }, 500);
+        });
+
+        // document.querySelectorAll('[data-href]').forEach(element => {  // looping though all tags with 'data-href' in the page
+        //     // setting an onclick event listener for the element
+        //     element.onclick = () => {
+        //         $("body").fadeOut();//element.classList.add('animation') // setting animation class to element
+        //         const link = element.dataset.href || element.getAttribute('data-href'); // getting the link from the 'data-href' attribute
+        //         setTimeout(() => location.assign(link), 1000) // navigate to a new website after 3s (3000ms)
+        //     }
+
+        // })
+        $('a').click(function (event) {
+            event.preventDefault();
+            newLocation = $(this).attr("href");
+            $("body").fadeOut();//element.classList.add('animation') // setting animation class to element
+            setTimeout(() => location.assign(newLocation), 1000)
+        });
+    </script>
+</body>
+
+</html>

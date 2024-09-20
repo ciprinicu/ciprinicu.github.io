@@ -1,0 +1,66 @@
+<html>
+
+</html>
+
+<head>
+    <title>Niculae Ciprian-Mihai</title>
+    <link rel="stylesheet" href="intro.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+
+<body style="display: none;">
+
+    <div class="container">
+        <h1>Niculae Ciprian-Mihai</h1>
+        <span>Născut la data de 5 iunie 2005. Pasionat de arta fotografică, îmi place să surprind frumusețea și emoțiile
+            din jurul meu
+            prin obiectivul aparatului de fotografiat.</span>
+        <!-- <a href="index.html" class="btn"><i class="animation"></i> Află mai multe <i class="animation"></i>
+        </a> -->
+        <br>
+        <button href="portofoliu.html">
+            <span>
+                Află mai multe
+            </span>
+        </button>
+        <div class="social">
+            <a class="fa-brands fa-instagram" title="" target="_blank" href="#"></a>
+            <a class="fa-brands fa-tiktok" title="" target="_blank" href="#"></a>
+            <a class="fa-brands fa-youtube" title="" target="_blank" href="#"></a>
+            <a class="fa-solid fa-envelope" title="" target="_blank" href="#"></a>
+        </div>
+
+    </div>
+
+    <script>
+        $(document).ready(function () {
+
+            $('body').css('display', 'none');
+
+            setTimeout(
+                function () {
+                    $('body').fadeIn(1000);
+                }, 500);
+        });
+
+        // document.querySelectorAll('[data-href]').forEach(element => {  // looping though all tags with 'data-href' in the page
+        //     // setting an onclick event listener for the element
+        //     element.onclick = () => {
+        //         $("body").fadeOut();//element.classList.add('animation') // setting animation class to element
+        //         const link = element.dataset.href || element.getAttribute('data-href'); // getting the link from the 'data-href' attribute
+        //         setTimeout(() => location.assign(link), 1000) // navigate to a new website after 3s (3000ms)
+        //     }
+
+        // })
+        $('button').click(function (event) {
+            event.preventDefault();
+            newLocation = $('button').attr("href");
+            $("body").fadeOut();//element.classList.add('animation') // setting animation class to element
+            setTimeout(() => location.assign(newLocation), 1000)
+        });
+    </script>
+</body>
+
+</html>
