@@ -105,6 +105,7 @@ body {
 }
 
 .image-gallery {
+    text-align: center;
     display: block;
     float: right;
     margin-left: 27%;
@@ -128,6 +129,14 @@ body {
     -o-transition: all 2s ease;
 }
 
+.image-gallery h1 {
+    display: none;
+    font-family: "Roboto", sans-serif;
+    font-weight: 900;
+    font-style: normal;
+    font-size: 45px;
+}
+
 @media only screen and (max-width: 600px) {
     body {
         background-color: lightblue;
@@ -144,12 +153,17 @@ body {
 
     .image-gallery {
         display: block;
-        float: right;
+        float: left;
         margin-top: 20%;
-        margin-left: 2%;
+        margin-right: 7%;
+        margin-left: 0%;
         gap: 20px;
         flex-flow: row wrap;
         justify-content: space-around;
         align-items: center;
+    }
+
+    .image-gallery h1 {
+        display: block;
     }
 }
