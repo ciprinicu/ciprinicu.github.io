@@ -26,23 +26,49 @@
         </div>
     </nav>
 
-    <div>
+    <div class="imglist">
 
     </div>
 
     <script>
-        var folder = "/portofoliu/nunti/";
+        var list = [
+            "_DSC3299.jpg",
+            "_DSC3300.jpg",
+            "_DSC3304.jpg",
+            "_DSC3328.jpg",
+            "_DSC3332.jpg",
+            "_DSC3333.jpg",
+            "_DSC3335.jpg",
+            "_DSC3336.jpg",
+            "_DSC3368.jpg",
+            "_DSC3369.jpg",
+            "_DSC3383.jpg",
+            "_DSC3384.jpg",
+            "_DSC3387.jpg",
+            "_DSC3388.jpg",
+            "_DSC3389.jpg",
+            "_DSC3390.jpg",
+            "_DSC3391.jpg",
+            "_DSC3396.jpg",
+            "_DSC3398.jpg",
+            "_DSC3401.jpg",
+            "_DSC3405.jpg",
+            "_DSC3410.jpg",
+            "_DSC3412.jpg",
+            "_DSC3414.jpg",
+            "_DSC3464.jpg",
+            "_DSC3466.jpg",
+            "_DSC3469.jpg",
+            "_DSC3474.jpg",
+            "_DSC3480.jpg",
+            "_DSC3482.jpg",
+            "_DSC3489.jpg",
+            "_DSC3493.jpg",
+            "_DSC3497.jpg"]
 
-        $.ajax({
-            url: folder,
-            success: function (data) {
-                $(data).find("a").attr("href", function (i, val) {
-                    if (val.match(/\.(jpe?g|png|gif)$/)) {
-                        $("body").append("<img src='" + folder + val + "'>");
-                    }
-                });
-            }
-        });
+        for (var i = 0; i < list.length; i++) {
+            $(".imglist").append("<div class=\'imgContainer\'><img src='/portofoliu/nunti/" + list[i] + "'></div>")
+        }
 
         $(document).ready(function () {
 
