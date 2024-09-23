@@ -3,10 +3,12 @@
 
 html {
     background-color: black;
+    height: 100%;
 }
 
 body {
-    height: 110%;
+    min-height: 100%;
+    overflow-y: auto;
     background-color: white;
     margin: 0;
 }
@@ -141,10 +143,8 @@ body {
 .porto-gallery {
     position: relative;
     text-align: center;
-    text-align: center;
     display: block;
-    float: right;
-    margin-left: 1%;
+    margin-left: 27%;
     margin-right: 7%;
     gap: 20px;
     flex-flow: row wrap;
@@ -159,7 +159,7 @@ body {
     transform: translate(-50%, -50%);
 }
 
-.porto-gallery img {
+.porto-gallery .wrapper img {
     width: auto;
     height: 430px;
     border: 2px solid #555;
@@ -182,21 +182,24 @@ body {
 }
 
 .wrapper {
+    display: inline-table;
     position: relative;
     padding: 0;
     width: 100px;
-    display: block;
 }
 
 .text {
+    line-height: 15;
+    font-size: 25px;
+    border-radius: 10px;
     position: absolute;
-    top: 7;
+    margin-top: 7;
     left: 7;
-    color: #f00;
+    color: black;
     background-color: rgba(255, 255, 255, 0.8);
     width: 287px;
     height: 430px;
-    line-height: 140px;
+    line-height: 15;
     text-align: center;
     z-index: 10;
     opacity: 0;
@@ -214,7 +217,8 @@ img {
     z-index: 1;
 }
 
-@media only screen and (max-width: 600px) {
+@media only screen and (max-width: 650px) {
+
     body {
         background-color: lightblue;
     }
@@ -226,6 +230,13 @@ img {
 
     .mobilebar {
         margin: 25 0 50 25;
+    }
+
+    .wrapper {
+        width: 0;
+        position: relative;
+        padding: 0;
+        display: block;
     }
 
     .image-gallery {
@@ -242,5 +253,28 @@ img {
 
     .image-gallery h1 {
         display: block;
+    }
+
+    .porto-gallery {
+        float: none;
+        position: relative;
+        text-align: center;
+        text-align: center;
+        display: block;
+        margin-left: 10%;
+        margin-right: 10%;
+        gap: 20px;
+        flex-flow: row wrap;
+        justify-content: space-around;
+        align-items: center;
+    }
+
+    .wrapper:last-of-type {
+        padding-bottom: 50px;
+    }
+
+    .text {
+        line-height: 15;
+        font-size: 25px;
     }
 }

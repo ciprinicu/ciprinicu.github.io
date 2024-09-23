@@ -30,30 +30,30 @@
         </nav>
     </div>
 
-    <div class="porto-gallery">
-        <div class="container">
+    <div class="container">
 
-        </div>
-        <a href="#" class="wrapper">
+    </div>
+    <div class="porto-gallery">
+        <a href="/portofoliu/nunti.html" class="wrapper">
+            <span class="text">
+                Nunti
+            </span>
             <img onload='this.style.opacity=1'
                 src="https://raw.githubusercontent.com/ciprinicu/ciprinicu.github.io/refs/heads/main/portofoliu/nunti/_DSC3412.jpg">
-            <span class="text">
-                14
-            </span>
         </a>
         <a href="#" class="wrapper">
-            <img onload='this.style.opacity=1'
-                src="https://raw.githubusercontent.com/ciprinicu/ciprinicu.github.io/refs/heads/main/portofoliu/nunti/_DSC3412.jpg">
             <span class="text">
                 14
             </span>
+            <img onload='this.style.opacity=1'
+                src="https://raw.githubusercontent.com/ciprinicu/ciprinicu.github.io/refs/heads/main/portofoliu/nunti/_DSC3412.jpg">
         </a>
         <a href="#" class="wrapper">
-            <img onload='this.style.opacity=1'
-                src="https://raw.githubusercontent.com/ciprinicu/ciprinicu.github.io/refs/heads/main/portofoliu/nunti/_DSC3412.jpg">
             <span class="text">
                 14
             </span>
+            <img onload='this.style.opacity=1'
+                src="https://raw.githubusercontent.com/ciprinicu/ciprinicu.github.io/refs/heads/main/portofoliu/nunti/_DSC3412.jpg">
         </a>
     </div>
 
@@ -65,7 +65,7 @@
                 document.querySelector("body > div.content > div").style.display = "block"
             } else {
                 document.querySelector("body > div.content > nav > div.sidebar").style.display = "block"
-                document.querySelector("body > div.content > div").style.display = "none"
+                $(".porto-gallery")[0].style.display = "none"
             }
         });
 
@@ -73,7 +73,7 @@
             var isbar = document.querySelector("body > div.content > nav > div.sidebar").style.display == "block";
             if (isbar) {
                 document.querySelector("body > div.content > nav > div.sidebar").style.display = "none"
-                document.querySelector("body > div.content > div").style.display = "block"
+                $(".porto-gallery")[0].style.display = "block"
             }
         });
 
