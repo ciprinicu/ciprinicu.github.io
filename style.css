@@ -15,6 +15,11 @@ body {
     overflow-x: hidden;
 }
 
+footer {
+    color: #dddddd;
+    text-align: center;
+}
+
 .sidebar {
     position: fixed;
     width: 15%;
@@ -104,6 +109,14 @@ ul.image-gallery li {
     padding-right: 50px;
 }
 
+ul.image-gallery h1 {
+    font-family: "Fugaz One",
+        sans-serif;
+    letter-spacing: 2px;
+    font-weight: 400;
+    font-style: normal;
+}
+
 ul.image-gallery li img {
     gap: 10px;
     height: 800px;
@@ -147,8 +160,10 @@ ul.image-gallery li img {
 
 .porto-gallery h1 {
     display: none;
-    font-family: "Roboto", sans-serif;
-    font-weight: 900;
+    font-family: "Fugaz One",
+        sans-serif;
+    letter-spacing: 2px;
+    font-weight: 400;
     font-style: normal;
     font-size: 45px;
 }
@@ -161,14 +176,17 @@ ul.image-gallery li img {
 }
 
 .text {
+    font-style: normal;
+    font-family: "Kanit",
+        sans-serif;
     line-height: 15;
     font-size: 25px;
     border-radius: 10px;
     position: absolute;
     margin-top: 7;
     left: 7;
-    color: black;
-    background-color: rgba(255, 255, 255, 0.8);
+    color: white;
+    background-color: rgba(0, 0, 0, 0.8);
     width: 287px;
     height: 430px;
     line-height: 15;
@@ -192,7 +210,8 @@ img {
 @media only screen and (max-width: 650px) {
 
     body {
-        background-color: lightblue;
+        /* background-color: lightblue; */
+        background-color: #fff;
     }
 
     .sidebar {
@@ -211,20 +230,32 @@ img {
         display: block;
     }
 
-    .image-gallery {
+    ul.image-gallery {
         display: block;
-        float: left;
-        margin-top: 20%;
-        margin-right: 7%;
-        margin-left: 0%;
-        gap: 20px;
-        flex-flow: row wrap;
-        justify-content: space-around;
-        align-items: center;
+        margin-top: 0%;
+        margin-left: 0;
     }
 
     .image-gallery h1 {
+        text-align: center;
         display: block;
+    }
+
+    ul.image-gallery li {
+        display: block;
+        width: auto;
+        height: auto;
+        padding-right: 50px;
+    }
+
+    ul.image-gallery li img {
+        gap: 10px;
+        margin-bottom: 20px;
+        /* height: 800px; */
+        width: 100%;
+        height: auto;
+        gap: 20px;
+        border: 2px solid#111;
     }
 
     .porto-gallery {
@@ -233,12 +264,22 @@ img {
         text-align: center;
         text-align: center;
         display: block;
-        margin-left: 10%;
+        margin-left: 14%;
         margin-right: 10%;
         gap: 20px;
         flex-flow: row wrap;
         justify-content: space-around;
         align-items: center;
+    }
+
+    body h1 {
+        margin-top: 0;
+        font-family: "Fugaz One",
+            sans-serif;
+        letter-spacing: 2px;
+        font-weight: 400;
+        font-style: normal;
+        text-align: center;
     }
 
     .wrapper:last-of-type {
@@ -248,5 +289,6 @@ img {
     .text {
         line-height: 15;
         font-size: 25px;
+        opacity: 0.75;
     }
 }
