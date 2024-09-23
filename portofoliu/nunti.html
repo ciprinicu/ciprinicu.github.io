@@ -32,9 +32,10 @@
         </nav>
 
         <ul class="image-gallery">
-            <h1>NUNTI</h1>
+            <h1 id="top">NUNTI</h1>
         </ul>
     </div>
+    <a class="bTOt" href="#top">Inapoi sus <i class="arrow up"></i></a>
     <footer>© 2024 Niculae Ciprian-Mihai</footer>
 
     <script>
@@ -93,10 +94,10 @@
             "_DSC3497.jpg"
         ]
 
-        var isLocal = false;
-        for (var i = 0; i < (isLocal ? list.length : list.length); i++) {
+        var isLocal = (document.location.hostname == "127.0.0.1");
+        for (var i = 0; i < (isLocal ? 5 : list.length); i++) {
             setTimeout(function (i) {
-                var url = isLocal ? "http://127.0.0.1:5500/portofoliu/nunti/minified/" : "https://raw.githubusercontent.com/ciprinicu/ciprinicu.github.io/refs/heads/main/portofoliu/nunti/"
+                var url = isLocal ? "http://127.0.0.1:5500/portofoliu/nunti/minified/" : "https://raw.githubusercontent.com/ciprinicu/ciprinicu.github.io/refs/heads/main/portofoliu/nunti/minified/"
                 //$(".image-gallery").append(`<img src='${url + list[i]}' fetchpriority='high'>`)
                 //var img = $(`<img src='${url + list[i]}' fetchpriority='high'>`)
 
@@ -136,6 +137,14 @@
         $('a').click(function (event) {
             event.preventDefault();
             newLocation = $(this).attr("href");
+            if (this.href.includes("#top")) {
+                window.scrollTo({
+                    top: 0,
+                    left: 0,
+                    behavior: "smooth"
+                });
+                return;
+            }
             $("body").fadeOut();//element.classList.add('animation') // setting animation class to element
             setTimeout(() => location.assign(newLocation), 1000)
         });
