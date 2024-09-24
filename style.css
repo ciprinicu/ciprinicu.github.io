@@ -4,15 +4,17 @@
 html {
     background-color: black;
     height: 100%;
-    overflow-x: hidden;
+    width: auto;
+    margin: 0;
 }
 
 body {
+    padding-top: 25px;
     min-height: 100%;
     overflow-y: auto;
     background-color: white;
     margin: 0;
-    overflow-x: hidden;
+    width: auto;
 }
 
 .bTOt {
@@ -41,8 +43,9 @@ footer {
 
 .sidebar h1 {
     display: block;
-    padding-left: 20px;
-    padding-right: 20px;
+    text-align: left;
+    /* padding-left: 20px; */
+    /* padding-right: 20px; */
     color: #fff;
     text-decoration: none;
     font-family: "Fugaz One",
@@ -99,16 +102,27 @@ footer {
 }
 
 .content {
-    display: flex;
+    display: block;
+}
+
+#NCM {
+    margin-left: 20px;
+}
+
+.content h1:not(#NCM) {
+    margin-left: 20%;
 }
 
 ul.image-gallery {
     padding: 0;
-    margin-left: 17%;
+    margin-left: 20%;
     white-space: nowrap;
-    width: 100%;
-    height: 100%;
+    width: auto;
+    height: 85.1%;
     overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    margin-bottom: 40px;
 }
 
 ul.image-gallery li {
@@ -216,7 +230,19 @@ img {
     z-index: 1;
 }
 
+.top {
+    display: none;
+}
+
 @media only screen and (max-width: 650px) {
+
+    .top {
+        display: block;
+    }
+
+    .content h1:not(#NCM) {
+        margin-left: unset;
+    }
 
     body {
         /* background-color: lightblue; */
@@ -242,12 +268,13 @@ img {
     ul.image-gallery {
         display: block;
         margin-top: 0%;
-        margin-left: 0;
+        margin-left: 10%;
+        height: auto;
     }
 
     .image-gallery h1 {
         text-align: center;
-        display: block;
+        /* display: block; */
     }
 
     ul.image-gallery li {
@@ -329,5 +356,9 @@ img {
     .up {
         transform: rotate(-135deg);
         -webkit-transform: rotate(-135deg);
+    }
+
+    .content h1 {
+        margin-left: unset;
     }
 }

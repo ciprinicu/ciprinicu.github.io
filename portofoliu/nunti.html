@@ -17,22 +17,22 @@
                 <i class="fa-solid fa-bars"></i>
             </div>
             <div class="sidebar">
-                <h1>Niculae <br>Ciprian-Mihai</h1>
+                <h1 id="NCM">Niculae <br>Ciprian-Mihai</h1>
                 <span>Bine ai venit pe pagina mea!</span>
                 <a href="/index.html">Introducere</a>
                 <a href="/portofoliu.html"><b>Portofoliu</b></a>
                 <ul class="pList">
                     <li><a href="/portofoliu/nunti.html"><b>Nunti</b></a></li>
-                    <li><a href="/portofoliu/botezuri.html">Botezuri</a></li>
-                    <li><a href="/portofoliu/portrete.html">Portrete</a></li>
+                    <li><a href="/WIP.html">Botezuri</a></li>
+                    <li><a href="/WIP.html">Portrete</a></li>
                 </ul>
-                <a href="">Preturi</a>
-                <a href="">Contact</a>
+                <a href="/WIP.html">Preturi</a>
+                <a href="/WIP.html">Contact</a>
             </div>
         </nav>
 
-        <ul class="image-gallery">
-            <h1 id="top">NUNTI</h1>
+        <h1 class="top" id="top">NUNTI</h1>
+        <ul style="display: none;" class="image-gallery">
         </ul>
     </div>
     <a class="bTOt" href="#top">Inapoi sus <i class="arrow up"></i></a>
@@ -58,62 +58,56 @@
             }
         });
 
-        var list = [
-            "_DSC3299.jpg",
-            "_DSC3300.jpg",
-            "_DSC3304.jpg",
-            "_DSC3328.jpg",
-            "_DSC3332.jpg",
-            "_DSC3333.jpg",
-            "_DSC3335.jpg",
-            "_DSC3336.jpg",
-            "_DSC3368.jpg",
-            "_DSC3369.jpg",
-            "_DSC3383.jpg",
-            "_DSC3384.jpg",
-            "_DSC3387.jpg",
-            "_DSC3388.jpg",
-            "_DSC3389.jpg",
-            "_DSC3390.jpg",
-            "_DSC3391.jpg",
-            "_DSC3396.jpg",
-            "_DSC3398.jpg",
-            "_DSC3401.jpg",
-            "_DSC3405.jpg",
-            "_DSC3410.jpg",
-            "_DSC3412.jpg",
-            "_DSC3414.jpg",
-            "_DSC3464.jpg",
-            "_DSC3466.jpg",
-            "_DSC3469.jpg",
-            "_DSC3474.jpg",
-            "_DSC3480.jpg",
-            "_DSC3482.jpg",
-            "_DSC3489.jpg",
-            "_DSC3493.jpg",
-            "_DSC3497.jpg"
-        ]
+        var list = {
+            "31.08.2024": [
+                "_DSC3300.jpg",
+                "_DSC3332.jpg",
+                "_DSC3401.jpg",
+                "_DSC3469.jpg",
+                "_DSC3482.jpg"],
+            "21.09.2024": [
+                "_DSC4786.jpg",
+                "_DSC4807.jpg",
+                "_DSC4820.jpg",
+                "_DSC4861.jpg",
+                "_DSC4951.jpg"
+            ]
+        }
 
-        var isLocal = (document.location.hostname == "127.0.0.1");
-        for (var i = 0; i < (isLocal ? 5 : list.length); i++) {
-            setTimeout(function (i) {
-                var url = isLocal ? "http://127.0.0.1:5500/portofoliu/nunti/minified/" : "https://raw.githubusercontent.com/ciprinicu/ciprinicu.github.io/refs/heads/main/portofoliu/nunti/minified/"
-                //$(".image-gallery").append(`<img src='${url + list[i]}' fetchpriority='high'>`)
-                //var img = $(`<img src='${url + list[i]}' fetchpriority='high'>`)
+        var isLocal = (document.location.hostname == "127.0.0.1" || document.location.hostname == "192.168.100.155");
+        var sp = document.querySelector(".image-gallery");
+        var txt = document.querySelector("#top");
+        for (let event in list) {
+            let tmpsp = sp.cloneNode(true);
+            tmpsp.id = event.replaceAll(".", "");
+            tmpsp.style.display = "block";
 
-                var li = document.createElement("li");
-                $(".image-gallery").append(li);
+            let tmptxt = txt.cloneNode(false);
+            tmptxt.id = "";
+            tmptxt.style.display = "block";
+            tmptxt.innerText = event
 
-                var img = document.createElement("img");
-                img.src = `${url + list[i]}`
-                img.style.opacity = 0;
-                img.onload = function () {
-                    this.style.opacity = 1
-                }
+            document.querySelector("body > div.content").append(tmptxt);
+            document.querySelector("body > div.content").append(tmpsp);
+            for (let i = 0; i < (isLocal ? list[event].length : list[event].length); i++) {
+                setTimeout(function (i) {
+                    console.log(tmpsp)
+                    var url = isLocal ? "http://192.168.100.155:5500/portofoliu/nunti/minified/" : "https://raw.githubusercontent.com/ciprinicu/ciprinicu.github.io/refs/heads/main/portofoliu/nunti/minified/"
+                    var li = document.createElement("li");
+                    $("#" + event.replaceAll(".", "")).append(li);
 
-                $(li).append(img);
+                    var img = document.createElement("img");
+                    img.src = `${url + list[event][i]}`
+                    img.style.opacity = 0;
+                    img.onload = function () {
+                        this.style.opacity = 1
+                    }
 
-            }, 200 * i, i);
+                    $(li).append(img);
+                    // }
+
+                }, 200 * i, i);
+            }
         }
 
         $(document).ready(function () {
@@ -148,6 +142,7 @@
             $("body").fadeOut();//element.classList.add('animation') // setting animation class to element
             setTimeout(() => location.assign(newLocation), 1000)
         });
+
     </script>
 </body>
 

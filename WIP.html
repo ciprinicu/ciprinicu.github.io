@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <title>WIP - Comming Soon!</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fugaz+One&family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Changa:wght@200..800&display=swap');
+
+        html {
+            background: black;
+        }
+
+        body {
+            background: black;
+            color: #FFFFFF;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            align-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        h1 {
+            text-align: center;
+            text-decoration: none;
+            font-family: "Fugaz One",
+                sans-serif;
+            letter-spacing: 2px;
+            font-weight: 400;
+            font-style: normal;
+            font-size: 25px;
+            padding: 50px;
+            text-transform: uppercase;
+        }
+
+        a {
+            text-decoration: none;
+            font-style: normal;
+            font-family: "Kanit",
+                sans-serif;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+
+<body style="display: none;">
+    <h1>Se lucreaza la aceasta pagina, revino mai tarziu!</h1>
+    <a id="bck" href="">Inapoi</a>
+
+    <script>
+        $(document).ready(function () {
+
+            $('body').css('display', 'none');
+
+            setTimeout(function () {
+                $('body').fadeIn(1000);
+            }, 500);
+
+            $("#bck").attr('href', document.referrer.includes("WIP.html") ? "/portofoliu.html" : document.referrer);
+            $('a').click(function (event) {
+                event.preventDefault();
+                newLocation = $(this).attr("href");
+                $("body").fadeOut(1000);//element.classList.add('animation') // setting animation class to element
+                setTimeout(() => location.assign(newLocation), 1000)
+            });
+        });
+    </script>
+</body>
+
+</html>
