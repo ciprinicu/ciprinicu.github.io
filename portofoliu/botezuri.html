@@ -1,0 +1,143 @@
+<html>
+
+</html>
+
+<head>
+    <title>Niculae Ciprian-Mihai</title>
+    <link rel="stylesheet" href="../style.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+
+<body style="display: none;">
+    <div class="content">
+        <nav class="sidenav">
+            <div class="mobilebar">
+                <i class="fa-solid fa-bars"></i>
+            </div>
+            <div class="sidebar">
+                <h1 id="NCM">Niculae <br>Ciprian-Mihai</h1>
+                <span>Bine ai venit pe pagina mea!</span>
+                <a href="/index.html">Introducere</a>
+                <a href="/portofoliu.html"><b>Portofoliu</b></a>
+                <ul class="pList">
+                    <li><a href="/portofoliu/nunti.html">Nunti</a></li>
+                    <li><a href="/portofoliu/botezuri.html"><b>Botezuri</b></a></li>
+                    <li><a href="/WIP.html">Portrete</a></li>
+                </ul>
+                <a href="/WIP.html">Preturi</a>
+                <a href="/WIP.html">Contact</a>
+            </div>
+        </nav>
+
+        <h1 class="top" id="top">BOTEZURI</h1>
+        <ul style="display: none;" class="image-gallery">
+        </ul>
+    </div>
+    <a class="bTOt" href="#top">Inapoi sus <i class="arrow up"></i></a>
+    <footer>© 2024 Niculae Ciprian-Mihai</footer>
+
+    <script>
+        $("body > div.content > nav > div.mobilebar > i").click(function () {
+            var isbar = document.querySelector("body > div.content > nav > div.sidebar").style.display == "block";
+            if (isbar) {
+                document.querySelector("body > div.content > nav > div.sidebar").style.display = "none"
+                document.querySelector("body > div.content > div").style.display = "block"
+            } else {
+                document.querySelector("body > div.content > nav > div.sidebar").style.display = "block"
+                document.querySelector("body > div.content > div").style.display = "none"
+            }
+        });
+
+        $("body > div.content > nav > div.sidebar").click(function () {
+            var isbar = document.querySelector("body > div.content > nav > div.sidebar").style.display == "block";
+            if (isbar) {
+                document.querySelector("body > div.content > nav > div.sidebar").style.display = "none"
+                document.querySelector("body > div.content > div").style.display = "block"
+            }
+        });
+
+        var list = {
+            "15.09.2024": [
+                "_DSC3713.jpg",
+                "_DSC3744.jpg",
+                "_DSC3755.jpg",
+                "_DSC3783.jpg",
+                "_DSC3796.jpg",
+                "_DSC3809.jpg"]
+        }
+
+        var isLocal = (document.location.hostname == "127.0.0.1");
+        var sp = document.querySelector(".image-gallery");
+        var txt = document.querySelector("#top");
+        for (let event in list) {
+            let tmpsp = sp.cloneNode(true);
+            tmpsp.id = event.replaceAll(".", "");
+            tmpsp.style.display = "block";
+
+            let tmptxt = txt.cloneNode(false);
+            tmptxt.id = "";
+            tmptxt.style.display = "block";
+            tmptxt.innerText = event
+
+            document.querySelector("body > div.content").append(tmptxt);
+            document.querySelector("body > div.content").append(tmpsp);
+            for (let i = 0; i < (isLocal ? list[event].length : list[event].length); i++) {
+                setTimeout(function (i) {
+                    console.log(tmpsp)
+                    var url = isLocal ? "http://127.0.0.1:5500/portofoliu/nunti/minified/" : "https://raw.githubusercontent.com/ciprinicu/ciprinicu.github.io/refs/heads/main/portofoliu/botezuri/minified/"
+                    var li = document.createElement("li");
+                    $("#" + event.replaceAll(".", "")).append(li);
+
+                    var img = document.createElement("img");
+                    img.src = `${url + list[event][i]}`
+                    img.style.opacity = 0;
+                    img.onload = function () {
+                        this.style.opacity = 1
+                    }
+
+                    $(li).append(img);
+                    // }
+
+                }, 200 * i, i);
+            }
+        }
+
+        $(document).ready(function () {
+
+            $('body').css('display', 'none');
+
+            setTimeout(
+                function () {
+                    $('body').fadeIn(1000);
+                }, 500
+            );
+            setTimeout(
+                function () {
+                    $("img").each(function () {
+                        //$(this).addClass("fadeIn")
+                    });
+                }, 1000
+            );
+        });
+
+        $('a').click(function (event) {
+            event.preventDefault();
+            newLocation = $(this).attr("href");
+            if (this.href.includes("#top")) {
+                window.scrollTo({
+                    top: 0,
+                    left: 0,
+                    behavior: "smooth"
+                });
+                return;
+            }
+            $("body").fadeOut();//element.classList.add('animation') // setting animation class to element
+            setTimeout(() => location.assign(newLocation), 1000)
+        });
+
+    </script>
+</body>
+
+</html>
