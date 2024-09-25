@@ -39,6 +39,14 @@
     </div>
 
     <script>
+        var isLocal = (document.location.hostname == "127.0.0.1" || document.location.hostname == "192.168.100.155");
+
+        if (!isLocal) {
+            var link = document.location.href;
+            link = link.split('.html')[0];
+            window.history.replaceState(null, null, link);
+        }
+
         $(document).ready(function () {
 
             $('body').css('display', 'none');

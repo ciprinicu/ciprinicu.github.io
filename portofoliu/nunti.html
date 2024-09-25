@@ -23,8 +23,8 @@
                 <a href="/portofoliu.html"><b>Portofoliu</b></a>
                 <ul class="pList">
                     <li><a href="/portofoliu/nunti.html"><b>Nunti</b></a></li>
-                    <li><a href="/WIP.html">Botezuri</a></li>
-                    <li><a href="/WIP.html">Portrete</a></li>
+                    <li><a href="/portofoliu/botezuri.html">Botezuri</a></li>
+                    <li><a href="/portofoliu/portrete.html">Portrete</a></li>
                 </ul>
                 <a href="/WIP.html">Preturi</a>
                 <a href="/WIP.html">Contact</a>
@@ -77,6 +77,13 @@
         var isLocal = (document.location.hostname == "127.0.0.1" || document.location.hostname == "192.168.100.155");
         var sp = document.querySelector(".image-gallery");
         var txt = document.querySelector("#top");
+
+        if (!isLocal) {
+            var link = document.location.href;
+            link = link.split('.html')[0];
+            window.history.replaceState(null, null, link);
+        }
+
         for (let event in list) {
             let tmpsp = sp.cloneNode(true);
             tmpsp.id = event.replaceAll(".", "");

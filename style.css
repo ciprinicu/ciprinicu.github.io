@@ -17,6 +17,15 @@ body {
     width: auto;
 }
 
+body h1 {
+    margin-top: 0;
+    font-family: "Fugaz One",
+        sans-serif;
+    letter-spacing: 2px;
+    font-weight: 400;
+    font-style: normal;
+}
+
 .bTOt {
     display: none;
     text-align: center;

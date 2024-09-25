@@ -80,24 +80,33 @@
         var isLocal = (document.location.hostname == "127.0.0.1");
         var sp = document.querySelector(".image-gallery");
         var txt = document.querySelector("#top");
+
+        if (!isLocal) {
+            var link = document.location.href;
+            link = link.split('.html')[0];
+            window.history.replaceState(null, null, link);
+        }
+
         for (let event in list) {
             let tmpsp = sp.cloneNode(true);
             tmpsp.id = event.replaceAll(".", "");
+            tmpsp.id = tmpsp.id.replaceAll(" ", "")
             tmpsp.style.display = "block";
 
             let tmptxt = txt.cloneNode(false);
             tmptxt.id = "";
             tmptxt.style.display = "block";
-            tmptxt.innerText = event
+            var tmp = event.charAt(0).toUpperCase() + event.slice(1)
+            tmptxt.innerText = tmp
 
             document.querySelector("body > div.content").append(tmptxt);
             document.querySelector("body > div.content").append(tmpsp);
             for (let i = 0; i < (isLocal ? list[event].length : list[event].length); i++) {
                 setTimeout(function (i) {
                     console.log(tmpsp)
-                    var url = isLocal ? "http://127.0.0.1:5500/portofoliu/botezuri/minified/" : "https://raw.githubusercontent.com/ciprinicu/ciprinicu.github.io/refs/heads/main/portofoliu/botezuri/minified/"
+                    var url = isLocal ? "http://127.0.0.1:5500/portofoliu/portrete/minified/" : "https://raw.githubusercontent.com/ciprinicu/ciprinicu.github.io/refs/heads/main/portofoliu/portrete/minified/"
                     var li = document.createElement("li");
-                    $("#" + event.replaceAll(".", "")).append(li);
+                    $("#" + event.replaceAll(".", "").replaceAll(" ", "")).append(li);
 
                     var img = document.createElement("img");
                     img.src = `${url + list[event][i]}`

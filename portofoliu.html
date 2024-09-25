@@ -51,11 +51,20 @@
                 Portrete
             </span>
             <img onload='this.style.opacity=1'
-                src="https://raw.githubusercontent.com/ciprinicu/ciprinicu.github.io/refs/heads/main/portofoliu/portrete/minified/_DSC3536.jpg">
+                src="https://raw.githubusercontent.com/ciprinicu/ciprinicu.github.io/refs/heads/main/portofoliu/portrete/minified/_DSC3994.jpg">
         </a>
     </div>
 
     <script>
+
+        var isLocal = (document.location.hostname == "127.0.0.1" || document.location.hostname == "192.168.100.155");
+
+        if (!isLocal) {
+            var link = document.location.href;
+            link = link.split('.html')[0];
+            window.history.replaceState(null, null, link);
+        }
+
         $("body > div.content > nav > div.mobilebar > i").click(function () {
             var isbar = document.querySelector("body > div.content > nav > div.sidebar").style.display == "block";
             if (isbar) {
