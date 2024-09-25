@@ -22,16 +22,16 @@
                 <a href="/index.html">Introducere</a>
                 <a href="/portofoliu.html"><b>Portofoliu</b></a>
                 <ul class="pList">
-                    <li><a href="/portofoliu/nunti.html"><b>Nunti</b></a></li>
-                    <li><a href="/WIP.html">Botezuri</a></li>
-                    <li><a href="/WIP.html">Portrete</a></li>
+                    <li><a href="/portofoliu/nunti.html">Nunti</a></li>
+                    <li><a href="/portofoliu/botezuri.html">Botezuri</a></li>
+                    <li><a href="/portofoliu/portrete.html"><b>Portrete</b></a></li>
                 </ul>
                 <a href="/WIP.html">Preturi</a>
                 <a href="/WIP.html">Contact</a>
             </div>
         </nav>
 
-        <h1 class="top" id="top">NUNTI</h1>
+        <h1 class="top" id="top">PORTRETE</h1>
         <ul style="display: none;" class="image-gallery">
         </ul>
     </div>
@@ -59,22 +59,25 @@
         });
 
         var list = {
-            "15.09.2024": [
-                "_DSC3300.jpg",
-                "_DSC3332.jpg",
-                "_DSC3401.jpg",
-                "_DSC3469.jpg",
-                "_DSC3482.jpg"],
-            "21.09.2024": [
-                "_DSC4786.jpg",
-                "_DSC4807.jpg",
-                "_DSC4820.jpg",
-                "_DSC4861.jpg",
-                "_DSC4951.jpg"
+            "traditional": [
+                "_DSC3536.jpg",
+                "_DSC3964.jpg",
+                "_DSC4392.jpg",
+                "_DSC4783.jpg",
+            ],
+            "in oglinda": [
+                "_DSC3994.jpg",
+                "_DSC4003.jpg",
+                "_DSC4117.jpg",
+            ],
+            "de grup": [
+                "_DSC4175.jpg",
+                "_DSC4486.jpg",
+                "_DSC4526.jpg",
             ]
         }
 
-        var isLocal = (document.location.hostname == "127.0.0.1" || document.location.hostname == "192.168.100.155");
+        var isLocal = (document.location.hostname == "127.0.0.1");
         var sp = document.querySelector(".image-gallery");
         var txt = document.querySelector("#top");
         for (let event in list) {
@@ -92,7 +95,7 @@
             for (let i = 0; i < (isLocal ? list[event].length : list[event].length); i++) {
                 setTimeout(function (i) {
                     console.log(tmpsp)
-                    var url = isLocal ? "http://192.168.100.155:5500/portofoliu/nunti/minified/" : "https://raw.githubusercontent.com/ciprinicu/ciprinicu.github.io/refs/heads/main/portofoliu/nunti/minified/"
+                    var url = isLocal ? "http://127.0.0.1:5500/portofoliu/botezuri/minified/" : "https://raw.githubusercontent.com/ciprinicu/ciprinicu.github.io/refs/heads/main/portofoliu/botezuri/minified/"
                     var li = document.createElement("li");
                     $("#" + event.replaceAll(".", "")).append(li);
 
