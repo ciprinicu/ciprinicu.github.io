@@ -79,12 +79,6 @@
         var sp = document.querySelector(".image-gallery");
         var txt = document.querySelector("#top");
 
-        if (!isLocal) {
-            var link = document.location.href;
-            link = link.split('.html')[0];
-            window.history.replaceState(null, null, link);
-        }
-
         for (let event in list) {
             let tmpsp = sp.cloneNode(true);
             tmpsp.id = event.replaceAll(".", "");
@@ -127,13 +121,11 @@
                     $('body').fadeIn(1000);
                 }, 500
             );
-            setTimeout(
-                function () {
-                    $("img").each(function () {
-                        //$(this).addClass("fadeIn")
-                    });
-                }, 1000
-            );
+            if (!isLocal) {
+                $("a").each(function (index) {
+                    this.href = this.pathname.replaceAll(".html", "")
+                })
+            }
         });
 
         $('a').click(function (event) {

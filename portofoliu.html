@@ -61,11 +61,11 @@
 
         var isLocal = (document.location.hostname == "127.0.0.1" || document.location.hostname == "192.168.100.155");
 
-        if (!isLocal) {
-            var link = document.location.href;
-            link = link.split('.html')[0];
-            window.history.replaceState(null, null, link);
-        }
+        // if (!isLocal) {
+        //     var link = document.location.href;
+        //     link = link.split('.html')[0];
+        //     window.history.replaceState(null, null, link);
+        // }
 
         $("body > div.content > nav > div.mobilebar > i").click(function () {
             var isbar = document.querySelector("body > div.content > nav > div.sidebar").style.display == "block";
@@ -94,6 +94,13 @@
                 function () {
                     $('body').fadeIn(1000);
                 }, 500);
+
+            if (!isLocal) {
+                $("a").each(function (index) {
+                    this.href = this.pathname.replaceAll(".html", "")
+                })
+            }
+
         });
 
         // document.querySelectorAll('[data-href]').forEach(element => {  // looping though all tags with 'data-href' in the page
