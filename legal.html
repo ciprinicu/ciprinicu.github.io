@@ -8,6 +8,13 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        p {
+            font-size: 25px;
+            margin-left: 20%;
+            margin-right: 5%;
+        }
+    </style>
 </head>
 
 <body style="display: none;">
@@ -22,17 +29,70 @@
                 <a href="/">Introducere</a>
                 <a href="/portofoliu.html"><b>Portofoliu</b></a>
                 <ul class="pList">
-                    <li><a href="/portofoliu/nunti.html"><b>Nunti</b></a></li>
+                    <li><a href="/portofoliu/nunti.html">Nunti</a></li>
                     <li><a href="/portofoliu/botezuri.html">Botezuri</a></li>
                     <li><a href="/portofoliu/portrete.html">Portrete</a></li>
                 </ul>
                 <a href="/WIP.html">Preturi</a>
                 <a href="/WIP.html">Contact</a>
-                <a href="/legal.html">Legal</a>
+                <a href="/legal.html"><b>Legal</b></a>
             </div>
         </nav>
 
-        <h1 class="top" id="top">NUNTI</h1>
+        <h1 class="top" id="top">LEGAL</h1>
+        <p>
+            În conformitate cu legislația națională și europeană privind protecția datelor cu caracter personal și
+            drepturile de
+            autor, declar pe propria răspundere că am obținut consimțământul expres și neechivoc al tuturor persoanelor
+            ale căror
+            imagini apar pe site-ul meu web. Acest consimțământ a fost obținut în mod voluntar, informat și specific
+            pentru
+            utilizarea fotografiilor în care aceștia figurează, conform prevederilor din Regulamentul General privind
+            Protecția
+            Datelor (GDPR). Persoanele în cauză au fost informate cu privire la modul în care imaginile lor vor fi
+            utilizate și
+            și-au exprimat în mod clar acordul pentru publicarea acestora pe platformă, în scopurile declarate, cum ar
+            fi promovarea
+            sau expunerea portofoliului.
+        </p>
+        <p>
+
+            Totodată, asigur că toate fotografiile afișate pe site sunt folosite cu respectarea deplină a legislației
+            privind
+            drepturile de autor. Dețin toate drepturile de proprietate intelectuală asupra fotografiilor fie prin faptul
+            că am
+            realizat personal aceste fotografii, fie prin intermediul unor contracte de licențiere sau transfer de
+            drepturi de autor
+            cu terțe părți. În cazul colaborării cu fotografi sau creatori de conținut, am obținut acordurile necesare
+            pentru a
+            putea utiliza, modifica și distribui aceste imagini pe site-ul meu, fără a încălca drepturile altor persoane
+            sau
+            entități.
+        </p>
+        <p>
+
+            În plus, declar că dețin integral drepturile asupra paginii web și a întregului conținut asociat cu numele
+            „Niculae
+            Ciprian-Mihai”. Aceasta include toate materialele vizuale, textuale și grafice publicate pe site, precum și
+            orice alte
+            elemente de branding, inclusiv logo-ul și numele de domeniu. Toate elementele care fac parte din identitatea
+            site-ului,
+            sub numele „Niculae Ciprian-Mihai”, sunt fie create de mine, fie utilizate sub licență, asigurându-mă că nu
+            există
+            încălcări ale drepturilor de proprietate intelectuală aparținând altor persoane.
+
+        </p>
+        <p>
+            Prin urmare, utilizarea numelui „Niculae Ciprian-Mihai” și a tuturor fotografiilor și materialelor asociate
+            pe site-ul
+            meu este în deplină conformitate cu legislația aplicabilă în domeniul drepturilor de autor, protecția
+            datelor și alte
+            norme legale relevante. Mă angajez să respect toate drepturile legale ale persoanelor și să gestionez datele
+            și
+            conținutul în mod etic și responsabil, pentru a asigura protecția acestora și a evita orice încălcare a
+            legislației în
+            vigoare.
+        </p>
         <ul style="display: none;" class="image-gallery">
         </ul>
     </div>
@@ -59,23 +119,7 @@
             }
         });
 
-        var list = {
-            "15.09.2024": [
-                "_DSC3300.jpg",
-                "_DSC3332.jpg",
-                "_DSC3401.jpg",
-                "_DSC3469.jpg",
-                "_DSC3482.jpg"],
-            "21.09.2024": [
-                "_DSC4786.jpg",
-                "_DSC4807.jpg",
-                "_DSC4820.jpg",
-                "_DSC4861.jpg",
-                "_DSC4951.jpg"
-            ]
-        }
-
-        var isLocal = (document.location.hostname == "127.0.0.1" || document.location.hostname == "192.168.100.155");
+        var isLocal = (document.location.hostname == "127.0.0.1");
         var sp = document.querySelector(".image-gallery");
         var txt = document.querySelector("#top");
 
@@ -83,39 +127,6 @@
             var link = document.location.href;
             link = link.split('.html')[0];
             window.history.replaceState(null, null, link);
-        }
-
-        for (let event in list) {
-            let tmpsp = sp.cloneNode(true);
-            tmpsp.id = event.replaceAll(".", "");
-            tmpsp.style.display = "block";
-
-            let tmptxt = txt.cloneNode(false);
-            tmptxt.id = "";
-            tmptxt.style.display = "block";
-            tmptxt.innerText = event
-
-            document.querySelector("body > div.content").append(tmptxt);
-            document.querySelector("body > div.content").append(tmpsp);
-            for (let i = 0; i < (isLocal ? list[event].length : list[event].length); i++) {
-                setTimeout(function (i) {
-                    console.log(tmpsp)
-                    var url = isLocal ? "http://192.168.100.155:5500/portofoliu/nunti/minified/" : "https://raw.githubusercontent.com/ciprinicu/ciprinicu.github.io/refs/heads/main/portofoliu/nunti/minified/"
-                    var li = document.createElement("li");
-                    $("#" + event.replaceAll(".", "")).append(li);
-
-                    var img = document.createElement("img");
-                    img.src = `${url + list[event][i]}`
-                    img.style.opacity = 0;
-                    img.onload = function () {
-                        this.style.opacity = 1
-                    }
-
-                    $(li).append(img);
-                    // }
-
-                }, 200 * i, i);
-            }
         }
 
         $(document).ready(function () {
