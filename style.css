@@ -12,23 +12,32 @@
     --card-glass: rgba(30, 41, 59, 0.7);
 }
 
-body {
+html, body {
+    height: 100%; /* CRUCIAL PENTRU STICKY FOOTER */
+    margin: 0;
+    
     background: var(--bg-main);
     background-image: radial-gradient(circle at top right, rgba(59, 130, 246, 0.1), transparent 40%),
                       radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.1), transparent 40%);
     background-attachment: fixed;
     color: var(--text-main);
     font-family: 'Inter', sans-serif;
-    margin: 0;
-    /* UPDATE: Padding-ul de jos scos pentru editor, adăugat doar unde e nevoie */
-    min-height: 100vh;
-    overflow-y: auto; /* Browser scroll */
+    
+    overflow-y: auto; 
 }
 
 #app-container {
     max-width: 1100px;
     margin: 0 auto;
-    padding: 30px 20px 100px 20px; /* Padding jos pentru FAB */
+    padding: 30px 20px 100px 20px; /* Păstrăm padding-ul tău pentru FAB */
+    
+    /* SCHEMA STICKY FOOTER START */
+    min-height: 100vh; /* Ocupă minim tot ecranul */
+    display: flex;     /* Activăm flexbox */
+    flex-direction: column; /* Elementele unul sub altul */
+    box-sizing: border-box; /* Ca să nu iasă din ecran din cauza padding-ului */
+    /* SCHEMA STICKY FOOTER END */
+
     animation: fadeInPage 0.6s ease-out;
 }
 
@@ -187,6 +196,35 @@ body {
 
 /* Animație generală */
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+
+/* --- STRUCTURA FLEXIBILĂ (STICKY FOOTER) --- */
+
+/* Elementul <main> va ocupa tot spațiul liber și va împinge footer-ul jos */
+main {
+    flex: 1; 
+    width: 100%; /* Siguranță să nu se strângă */
+}
+
+/* Stilul pentru Footer-ul cu versiunea */
+.app-footer {
+    text-align: center;
+    padding-top: 20px; /* Puțin spațiu deasupra */
+    margin-top: auto;  /* Siguranță extra */
+    opacity: 0.6;
+    transition: opacity 0.3s;
+}
+
+.app-footer:hover {
+    opacity: 1; /* Se aprinde când pui mouse-ul */
+}
+
+.app-footer p {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-family: monospace; /* Să arate tehnic */
+    margin: 0;
+}
 
 /* --- MOBILE OPTIMIZATION: GRID VIEW (AERISIT & CENTRAT) --- */
 @media (max-width: 768px) {

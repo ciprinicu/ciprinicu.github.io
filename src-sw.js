@@ -1,5 +1,7 @@
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/6.4.1/workbox-sw.js');
 
+const CACHE_VERSION = 'VERSION_PLACEHOLDER';
+
 // Verificăm dacă s-a încărcat Workbox
 if (workbox) {
     console.log(`Yay! Workbox is loaded 🎉`);
