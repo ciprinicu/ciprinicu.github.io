@@ -1,0 +1,24 @@
+{
+  "name": "MyPWA",
+  "short_name": "test short",
+  "description": "test description",
+  "display": "standalone",
+  "theme_color": "#cccccc",
+  "background_color": "#ffffff",
+  "start_url": "/",
+  "id": "/",
+  "prefer_related_applications": false,
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "./assets/icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "./assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

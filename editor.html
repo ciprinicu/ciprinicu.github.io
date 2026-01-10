@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Editor TraduCipri</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        /* --- 1. RESET & LAYOUT --- */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body, html {
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            background-color: #0f172a !important; 
+            color: #e2e8f0;
+            overflow: hidden; /* Fără scroll pe body */
+        }
+
+        .editor-layout {
+            display: flex;
+            flex-direction: column;
+            height: 100vh; /* Ocupă tot ecranul */
+            height: 100dvh; /* Fix pentru mobile browsers bar */
+            width: 100vw;
+        }
+
+        /* --- 2. TOOLBAR (RESPONSIVE) --- */
+        .top-bar {
+            flex-shrink: 0; 
+            height: 60px;
+            padding: 0 10px; /* Padding mai mic pe laterale */
+            background: #1e293b; /* Culoare diferită puțin să se vadă bara */
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between;
+            gap: 10px; /* Spațiu între elemente */
+            z-index: 100;
+        }
+
+        /* Titlul se adaptează acum! */
+        .title-input {
+            background: transparent; border: none; color: white;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600; font-size: 1.1rem;
+            flex: 1; /* Ocupă spațiul liber */
+            min-width: 50px; /* Să nu dispară de tot */
+            outline: none;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+
+        .action-group { display: flex; gap: 8px; flex-shrink: 0; }
+
+        .icon-btn {
+            background: rgba(255,255,255,0.1); border: none; color: #cbd5e1;
+            width: 38px; height: 38px; border-radius: 8px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem;
+        }
+        .icon-btn.active { background: #3b82f6; color: white; }
+        .icon-btn.rec-active { background: #ef4444; color: white; animation: pulse 1.5s infinite; }
+
+        /* --- 3. ZONA DE SCRIS (FIXATĂ) --- */
+        #scroll-container {
+            flex: 1; /* Ocupă restul ecranului sub toolbar */
+            overflow-y: auto; 
+            position: relative;
+            width: 100%;
+            background-color: #0f172a;
+            cursor: text;
+        }
+
+        /* Layer-ul de Desen */
+        #draw-layer {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none; /* Lasă click-urile să treacă la text */
+            z-index: 50; /* Peste text */
+        }
+
+        /* --- 4. TIPTAP CONTAINER --- */
+        .editor-content {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;   
+            padding: 20px 15px 300px 15px; /* Spațiu de siguranță jos */
+            min-height: 100%; /* Foarte important să ocupe tot containerul */
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Stiluri Editor */
+        .ProseMirror { outline: none; min-height: 60vh; font-size: 1.1rem; line-height: 1.6; color: #e2e8f0; }
+        .ProseMirror h1 { line-height: 1.2; margin-top: 0.5em; }
+        
+        /* Imagini Responsive */
+        .ProseMirror img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            display: block;
+            margin: 10px 0;
+        }
+
+        /* Placeholder */
+        .ProseMirror p.is-editor-empty:first-child::before {
+            content: attr(data-placeholder);
+            float: left; color: #475569; pointer-events: none; height: 0;
+        }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<div class="editor-layout">
+    <header class="top-bar">
+        <button class="icon-btn" onclick="history.back()">⬅</button>
+        <input type="text" id="doc-title" class="title-input" value="Se încarcă...">
+        
+        <div class="action-group">
+            <input type="file" id="img-input" accept="image/*" style="display: none;">
+            <button id="btn-add-img" class="icon-btn" title="Poză">📷</button>
+            <button id="btn-draw-mode" class="icon-btn" title="Desenează">✏️</button>
+            <button id="btn-clear-draw" class="icon-btn" title="Șterge">🧹</button>
+            <button id="btn-mic" class="icon-btn" style="width: auto; padding: 0 10px; font-size: 0.9rem; font-weight: 600;">🎙️</button>
+        </div>
+    </header>
+
+    <div id="scroll-container">
+        <canvas id="draw-layer"></canvas>
+        <div id="tiptap-editor" class="editor-content"></div>
+    </div>
+</div>
+
+<script type="module" src="./js/editor.js"></script>
+
+</body>
+</html>
