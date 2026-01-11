@@ -28,7 +28,9 @@ jobs:
 
       # Pasul C: Instalează librăriile (Workbox, etc.)
       - name: Install Dependencies 🔧
-        run: npm install
+        run: |
+            npm install
+            npm install -g workbox-cli
 
       # Pasul D: MAGIA VERSIUNII 🕒
       # Aici înlocuim textul "VERSION_PLACEHOLDER" cu data reală
