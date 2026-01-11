@@ -237,7 +237,9 @@ textarea,
 /* ============================== */
 
 
-
+#mobile-sheet-overlay {
+    display: none;
+}
 
 
 
@@ -271,6 +273,10 @@ main {
 
 /* --- MOBILE OPTIMIZATION: GRID VIEW (AERISIT & CENTRAT) --- */
 @media (max-width: 768px) {
+
+    #mobile-sheet-overlay {
+        display: unset;
+    }
 
     /* --- BOTTOM SHEET (MENIU MOBIL) --- */
 .sheet-overlay {

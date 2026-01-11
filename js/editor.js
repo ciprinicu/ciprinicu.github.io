@@ -222,7 +222,7 @@ async function startRecordingLoop() {
         };
 
         recordSegment();
-        recordingInterval = setInterval(() => { if (isRecording) recordSegment(); }, 5100); 
+        recordingInterval = setInterval(() => { if (isRecording) recordSegment(); }, 5010); 
     } catch (err) {
         alert("Microfon blocat!");
         stopRecordingLoop();
