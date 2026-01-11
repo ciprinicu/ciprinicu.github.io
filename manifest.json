@@ -1,6 +1,6 @@
 {
-  "name": "TraduCipri",
-  "short_name": "TraduCipri: Caiete Digitale",
+  "name": "TraduCipri: Caiete Digitale",
+  "short_name": "TraduCipri",
   "description": "TraduCipri e caietul tău digital, dar upgrade-uit. Îți organizezi cursurile pe materii, dai record la ce zice profu' și îți scrii notițele direct în app. Partea cea mai blană? Merge perfect offline, deci nu depinzi de netul din amfiteatru. Ai și backup inclus, așa că nu pierzi nimic, never. Tot ce ai nevoie ca să treci sesiunea, într-un singur loc.",
   "display": "standalone",
   "theme_color": "#cccccc",
