@@ -1,0 +1,40 @@
+{
+  "name": "TraduCipri",
+  "short_name": "TraduCipri: Caiete Digitale",
+  "description": "TraduCipri e caietul tău digital, dar upgrade-uit. Îți organizezi cursurile pe materii, dai record la ce zice profu' și îți scrii notițele direct în app. Partea cea mai blană? Merge perfect offline, deci nu depinzi de netul din amfiteatru. Ai și backup inclus, așa că nu pierzi nimic, never. Tot ce ai nevoie ca să treci sesiunea, într-un singur loc.",
+  "display": "standalone",
+  "theme_color": "#cccccc",
+  "background_color": "#ffffff",
+  "start_url": "/",
+  "id": "/",
+  "prefer_related_applications": false,
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "./assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+   "screenshots": [
+    {
+     "src": "./assets/TC_Dashboard.png",
+      "sizes": "1920x1200",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Dashboard View"
+    },
+    {
+     "src": "./assets/TC_Notebook.png",
+      "sizes": "1920x1200",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Notebook View"
+    }
+]
+}

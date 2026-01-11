@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TraduCipri - Caiet Inteligent</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="manifest" href="manifest.json" />
+    <link rel="stylesheet" href="style.css">
+    <script src="index.js" defer></script>
+    <script type="module" src="./js/app.js"></script>
+</head>
+<body>
+
+    <div id="welcome-wizard" class="wizard-overlay" style="display: none;">
+        <div class="wizard-card">
+            
+            <div id="step-1" class="wizard-step active">
+                <div class="wizard-icon">👋</div>
+                <h2>Bun venit în TraduCipri</h2>
+                <p>Caietul tău inteligent, offline și securizat.</p>
+                <button id="btn-step-1" class="primary-btn full-width">Să începem</button>
+            </div>
+
+            <div id="step-2" class="wizard-step">
+                <div class="wizard-icon">👤</div>
+                <h2>Cum să-ți spunem?</h2>
+                <p>Pentru o experiență personalizată.</p>
+                <input type="text" id="user-name-input" class="glass-input" placeholder="Numele tău..." autocomplete="off">
+                <button id="btn-step-2" class="primary-btn full-width" style="margin-top: 20px;">Continuă</button>
+            </div>
+
+            <div id="step-3" class="wizard-step">
+                <div class="wizard-icon">🚀</div>
+                <h2>Configurare Sistem</h2>
+                <p class="status-text" id="install-status">Se inițializează AI-ul...</p>
+                
+                <div id="download-list" class="download-container"></div>
+            </div>
+
+            <div id="step-4" class="wizard-step">
+                <div class="wizard-icon">✅</div>
+                <h2>Totul este pregătit!</h2>
+                <p>Poți folosi aplicația oricând, fără internet.</p>
+                <button id="btn-step-4" class="primary-btn full-width success-btn">Deschide Caietul</button>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="app-container" style="display: none;">
+        
+        <header class="app-header">
+            <div>
+                <h1 id="app-greeting">Salut!</h1>
+                <p class="app-subtitle">Spațiul tău de studiu offline.</p>
+            </div>
+            <div class="user-avatar">🎓</div>
+        </header>
+
+        <main>
+            <section class="content-section">
+                <h2 class="section-title">Caietele Tale</h2>
+                <div id="notebook-list" class="notebook-grid">
+                    </div>
+            </section>
+
+            <section class="content-section settings-card">
+                <h2 class="section-title" style="margin-bottom: 15px;">🔧 Administrare Date</h2>
+                <p style="color: #94a3b8; margin-bottom: 20px; font-size: 0.9rem;">Salvează-ți progresul extern pentru siguranță.</p>
+                <div class="backup-actions">
+                    <button id="btn-export" class="secondary-btn">
+                        <span>⬇️</span> Descarcă Backup
+                    </button>
+                    <button id="btn-import-trigger" class="secondary-btn">
+                        <span>⬆️</span> Încarcă Backup
+                    </button>
+                    <input type="file" id="file-import" style="display: none" accept=".json">
+                </div>
+            </section>
+        </main>
+
+        <button id="btn-new-notebook" class="fab-btn" title="Caiet Nou">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </button>
+
+        <footer class="app-footer">
+        Versiune: <span id="ver">v2026.01.11-02.22</span>
+        </footer>
+
+    </div>
+
+    <div id="create-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-card">
+            <h3 class="modal-title">Caiet Nou</h3>
+            <input type="text" id="notebook-title" class="ghost-input" placeholder="Ex: Curs Portugheză..." autocomplete="off">
+            
+            <div class="modal-actions">
+                <button id="btn-cancel-modal" class="btn-cancel">Anulează</button>
+                <button id="btn-confirm-create" class="primary-btn" style="width: auto;">Creează</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
