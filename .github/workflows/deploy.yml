@@ -1,0 +1,58 @@
+name: Auto Build & Deploy 🚀
+
+# 1. CÂND PORNEȘTE?
+# De fiecare dată când dai "push" pe ramura "main"
+on:
+  push:
+    branches:
+      - main
+
+# Îi dăm voie robotului să modifice fișierele (pentru deploy)
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest # Robotul folosește Linux
+
+    steps:
+      # Pasul A: Descarcă codul tău de pe GitHub
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+
+      # Pasul B: Instalează Node.js (ca să meargă npm și workbox)
+      - name: Setup Node.js 📦
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      # Pasul C: Instalează librăriile (Workbox, etc.)
+      - name: Install Dependencies 🔧
+        run: npm install
+
+      # Pasul D: MAGIA VERSIUNII 🕒
+      # Aici înlocuim textul "VERSION_PLACEHOLDER" cu data reală
+      - name: Inject Version Timestamp
+        run: |
+          # Facem o variabilă cu data (ex: v2025.01.12-14.30)
+          NEW_VER="v$(date +'%Y.%m.%d-%H.%M')"
+          echo "Versiunea generata: $NEW_VER"
+          
+          # Înlocuim în HTML (ca să vadă userul jos în footer)
+          sed -i "s/VERSION_PLACEHOLDER/$NEW_VER/g" index.html
+          
+          # Înlocuim în SURSA Service Worker-ului (src-sw.js)
+          # ATENȚIE: Modificăm sursa ÎNAINTE de build!
+          sed -i "s/VERSION_PLACEHOLDER/$NEW_VER/g" src-sw.js
+
+      # Pasul E: BUILD-UL TĂU (Workbox) 🏗️
+      # Asta va genera sw.js final, care va conține versiunea băgată mai sus
+      - name: Build Project
+        run: npm run build
+
+      # Pasul F: Urcă totul pe GitHub Pages 🚀
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: . # Urcă tot folderul curent
+          branch: gh-pages # Pe ramura specială de site
