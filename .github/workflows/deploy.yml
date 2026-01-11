@@ -1,4 +1,4 @@
-name: Build, deploy and version 🚀
+name: Auto Deploy & Semantic Version 🚀
 
 on:
   push:
@@ -6,62 +6,68 @@ on:
       - main
 
 permissions:
-  contents: write # OBLIGATORIU: Ca să poată crea tag-ul nou!
+  contents: write
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Luăm codul cu TOT istoricul (fetch-depth: 0 e critic aici!)
       - name: Checkout 🛎️
         uses: actions/checkout@v3
         with:
           fetch-depth: 0 
 
-      # 2. GENERATORUL DE VERSIUNI (Soumeh-zz)
-      - name: Auto Versioning 🏷️
-        id: version # Îi dăm un ID ca să-l strigăm mai jos
-        uses: Soumeh-zz/auto-versioning@v1.0.0
+      - name: Bump Version and Push Tag 🏷️
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          # Setări opționale (le poți șterge dacă vrei default):
-          tag_prefix: "v"       # Pune "v" în față (v1.0.2)
-          major_pattern: "major:"
-          minor_pattern: "feat:"
-          patch_pattern: "fix:"
+          default_bump: patch # Asigură că face bump la orice commit
+          tag_prefix: "v"
 
-      # 3. Setup Node.js
       - name: Setup Node.js 📦
         uses: actions/setup-node@v3
         with:
           node-version: '18'
 
-      # 4. Instalăm Workbox și restul
       - name: Install Dependencies 🔧
         run: |
           npm install
           npm install -g workbox-cli
 
-      # 5. INJECTĂM VERSIUNEA CALCULATĂ
-      - name: 🕒 Injectează Versiunea Soumeh
+      # AICI E SCHIMBAREA DE SIGURANȚĂ 🚨
+      - name: 🕒 Injectează Versiunea (Cu Fallback)
         run: |
-          # Așa scoți versiunea din acțiunea lui Soumeh:
-          NEW_VER="${{ steps.version.outputs.version }}"
+          # Luăm ambele valori
+          NEW_TAG="${{ steps.tag_version.outputs.new_tag }}"
+          PREV_TAG="${{ steps.tag_version.outputs.previous_tag }}"
           
-          echo "🚀 Versiunea calculată este: $NEW_VER"
+          # Verificăm: E gol noul tag?
+          if [ -z "$NEW_TAG" ]; then
+            echo "⚠️ Nu s-a generat versiune nouă. Rămânem pe aia veche."
+            FINAL_VER="$PREV_TAG"
+          else
+            echo "🚀 Avem versiune nouă proaspătă!"
+            FINAL_VER="$NEW_TAG"
+          fi
+          
+          # Dacă și PREV_TAG e gol (primul run ever), punem o valoare default
+          if [ -z "$FINAL_VER" ] || [ "$FINAL_VER" == "v0.0.0" ]; then
+             FINAL_VER="v1.0.0"
+          fi
+
+          echo "✅ Versiunea finală care intră pe site: $FINAL_VER"
           
           # Injectăm în HTML
-          sed -i "s/VERSION_PLACEHOLDER/$NEW_VER/g" index.html
+          sed -i "s/VERSION_PLACEHOLDER/$FINAL_VER/g" index.html
           
-          # Injectăm în Service Worker (sursa)
-          sed -i "s/VERSION_PLACEHOLDER/$NEW_VER/g" src-sw.js
+          # Injectăm în SW
+          sed -i "s/VERSION_PLACEHOLDER/$FINAL_VER/g" src-sw.js
 
-      # 6. Build (Generare SW Final)
       - name: 🏗️ Build Project
         run: npm run build
 
-      # 7. Deploy pe GitHub Pages
       - name: 🚀 Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
