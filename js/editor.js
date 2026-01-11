@@ -3,14 +3,14 @@ import { NotebookManager, dbPromise } from './db.js';
 
 // --- IMPORTURI TIPTAP & EXTENSII (Image inclusă) ---
 import { Editor } from 'https://esm.sh/@tiptap/core';
-import StarterKit from 'https://esm.sh/@tiptap/starter-kit';
+import { StarterKit } from 'https://esm.sh/@tiptap/starter-kit';
 import Placeholder from 'https://esm.sh/@tiptap/extension-placeholder';
 import ImageExtension from 'https://esm.sh/@tiptap/extension-image'; // <--- AICI ERA LIPSA
 import MarkdownIt from 'https://esm.sh/markdown-it';
 
 // --- CONFIGURARE GLOBALĂ ---
 let editor = null;
-const mdParser = new MarkdownIt(); 
+const mdParser = new MarkdownIt();
 
 // Elemente DOM - Editor & Desen
 const titleInput = document.getElementById('doc-title');
@@ -30,8 +30,8 @@ const urlParams = new URLSearchParams(window.location.search);
 const noteId = parseInt(urlParams.get('id'));
 
 let currentNote = null;
-let isRecording = false;      
-let recordingInterval = null; 
+let isRecording = false;
+let recordingInterval = null;
 let isDrawingMode = false;
 let ctx = null;
 
@@ -44,7 +44,7 @@ async function init() {
     const isInstalled = localStorage.getItem('traduCipriInstalled');
     if (!isInstalled) {
         alert("Trebuie să finalizezi configurarea mai întâi!");
-        window.location.href = 'index.html'; 
+        window.location.href = 'index.html';
         return;
     }
 
@@ -53,13 +53,23 @@ async function init() {
         editor = new Editor({
             element: document.getElementById('tiptap-editor'),
             extensions: [
-                StarterKit, 
-                ImageExtension, // <--- Activăm suportul pentru poze
+                StarterKit,
+                ImageExtension.configure({
+                    resize: {
+                        enabled: true,
+                        directions: ['bottom', 'right'], // can be any direction or diagonal combination
+                        minWidth: 50,
+                        minHeight: 50,
+                        alwaysPreserveAspectRatio: true,
+                    }
+                }), // <--- Activăm suportul pentru poze
                 Placeholder.configure({
                     placeholder: 'Scrie, dictează sau pune o poză...',
                 }),
+                StarterKit.UndoRedo,
             ],
-            content: '', 
+            content: '',
+            autofocus: true,
             onUpdate: ({ editor }) => {
                 saveNote();
                 resizeCanvas(true);
@@ -94,7 +104,7 @@ async function init() {
 
     const db = await dbPromise;
     currentNote = await db.get('notebooks', noteId);
-    
+
     if (!currentNote) {
         alert("Caietul nu există!");
         window.location.href = 'index.html';
@@ -102,29 +112,29 @@ async function init() {
     }
 
     if (titleInput) titleInput.value = currentNote.title;
-    
+
     // Încărcăm conținutul
     if (currentNote.content && editor) {
         // Populăm datele
-    if (titleInput) titleInput.value = currentNote.title;
-    
-    // --- FIX PENTRU TEXTUL NEFORMATAT ---
-    if (currentNote.content && editor) {
-        // Verificăm dacă e text vechi (Markdown) sau nou (HTML)
-        // Dacă nu are tag-uri HTML (<p>, <h1>) dar are simboluri (#, **), e clar Markdown brut.
-        const seemsLikeMarkdown = !currentNote.content.trim().startsWith('<') && 
-                                  (currentNote.content.includes('#') || currentNote.content.includes('**'));
+        if (titleInput) titleInput.value = currentNote.title;
 
-        if (seemsLikeMarkdown) {
-            console.log("🔄 Detectat Markdown vechi -> Convertim în HTML...");
-            // Îl traducem pe loc ca să apară frumos (H1, Bold, Liste)
-            const parsedHtml = mdParser.render(currentNote.content);
-            editor.commands.setContent(parsedHtml);
-        } else {
-            // E deja HTML (salvat corect de TipTap), îl punem direct
-            editor.commands.setContent(currentNote.content);
+        // --- FIX PENTRU TEXTUL NEFORMATAT ---
+        if (currentNote.content && editor) {
+            // Verificăm dacă e text vechi (Markdown) sau nou (HTML)
+            // Dacă nu are tag-uri HTML (<p>, <h1>) dar are simboluri (#, **), e clar Markdown brut.
+            const seemsLikeMarkdown = !currentNote.content.trim().startsWith('<') &&
+                (currentNote.content.includes('#') || currentNote.content.includes('**'));
+
+            if (seemsLikeMarkdown) {
+                console.log("🔄 Detectat Markdown vechi -> Convertim în HTML...");
+                // Îl traducem pe loc ca să apară frumos (H1, Bold, Liste)
+                const parsedHtml = mdParser.render(currentNote.content);
+                editor.commands.setContent(parsedHtml);
+            } else {
+                // E deja HTML (salvat corect de TipTap), îl punem direct
+                editor.commands.setContent(currentNote.content);
+            }
         }
-    }
     }
 
     // Încărcăm desenul + Resize pentru ecran complet
@@ -149,7 +159,7 @@ async function init() {
     // Focus pe editor
     if (paperBg) {
         paperBg.onclick = (e) => {
-            if(e.target.id === 'scroll-container' && editor) editor.commands.focus();
+            if (e.target.id === 'scroll-container' && editor) editor.commands.focus();
         }
     }
 }
@@ -168,11 +178,11 @@ if (btnAddImg && imgInput) {
         if (!file) return;
 
         const reader = new FileReader();
-        
+
         // Citim fișierul și îl facem Base64
         reader.onload = (e) => {
             const result = e.target.result;
-            
+
             if (editor) {
                 // Inserăm imaginea în TipTap
                 editor.chain().focus().setImage({ src: result }).run();
@@ -182,7 +192,7 @@ if (btnAddImg && imgInput) {
                 saveNote();
             }
         };
-        
+
         reader.readAsDataURL(file);
         imgInput.value = ''; // Resetăm input-ul
     };
@@ -206,7 +216,7 @@ async function startRecordingLoop() {
         btnMic.classList.add('rec-active');
 
         const recordSegment = () => {
-            if (!isRecording) return; 
+            if (!isRecording) return;
             const recorder = new MediaRecorder(stream);
             let chunks = [];
             recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
@@ -222,7 +232,7 @@ async function startRecordingLoop() {
         };
 
         recordSegment();
-        recordingInterval = setInterval(() => { if (isRecording) recordSegment(); }, 5010); 
+        recordingInterval = setInterval(() => { if (isRecording) recordSegment(); }, 5010);
     } catch (err) {
         alert("Microfon blocat!");
         stopRecordingLoop();
@@ -232,7 +242,7 @@ async function startRecordingLoop() {
 function stopRecordingLoop() {
     isRecording = false;
     if (recordingInterval) { clearInterval(recordingInterval); recordingInterval = null; }
-    if(btnMic) { btnMic.innerHTML = "🎙️ REC"; btnMic.classList.remove('rec-active'); }
+    if (btnMic) { btnMic.innerHTML = "🎙️ REC"; btnMic.classList.remove('rec-active'); }
 }
 
 function insertTextSmart(text) {
@@ -240,7 +250,7 @@ function insertTextSmart(text) {
     let cleanText = text.trim();
     if (cleanText.length === 0) return;
 
-    const allText = editor.getText(); 
+    const allText = editor.getText();
     const lastChars = allText.slice(-50).trim();
     if (lastChars.endsWith(cleanText)) return;
 
@@ -256,14 +266,14 @@ if (btnDraw && canvas) {
         isDrawingMode = !isDrawingMode;
         if (isDrawingMode) {
             btnDraw.classList.add('active');
-            canvas.style.pointerEvents = 'auto'; 
-            if(editor) editor.setEditable(false); 
-            if(document.querySelector('.editor-content')) document.querySelector('.editor-content').style.opacity = '0.5';
+            canvas.style.pointerEvents = 'auto';
+            if (editor) editor.setEditable(false);
+            if (document.querySelector('.editor-content')) document.querySelector('.editor-content').style.opacity = '0.5';
         } else {
             btnDraw.classList.remove('active');
             canvas.style.pointerEvents = 'none';
-            if(editor) editor.setEditable(true);
-            if(document.querySelector('.editor-content')) document.querySelector('.editor-content').style.opacity = '1';
+            if (editor) editor.setEditable(true);
+            if (document.querySelector('.editor-content')) document.querySelector('.editor-content').style.opacity = '1';
             saveDrawing();
         }
     };
@@ -271,19 +281,19 @@ if (btnDraw && canvas) {
 
 let painting = false;
 function startPosition(e) { painting = true; draw(e); }
-function finishedPosition() { painting = false; if(ctx) ctx.beginPath(); }
+function finishedPosition() { painting = false; if (ctx) ctx.beginPath(); }
 function draw(e) {
     if (!painting || !isDrawingMode || !ctx) return;
-    
+
     // Coordonatele pentru Infinite Canvas
-    const x = e.clientX; 
+    const x = e.clientX;
     const y = e.clientY + sheet.scrollTop; // + Scroll offset
 
-    if(y < 65) return; // Protecție toolbar
+    if (y < 65) return; // Protecție toolbar
 
     ctx.lineWidth = 3;
     ctx.lineCap = 'round';
-    ctx.strokeStyle = '#ef4444'; 
+    ctx.strokeStyle = '#ef4444';
 
     ctx.lineTo(x, y);
     ctx.stroke();
@@ -299,8 +309,8 @@ if (canvas) {
 
 if (btnClear) {
     btnClear.onclick = () => {
-        if(confirm("Ștergi desenul?")) {
-            if(ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (confirm("Ștergi desenul?")) {
+            if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
             saveDrawing();
         }
     };
@@ -310,7 +320,7 @@ if (btnClear) {
 
 function resizeCanvas(preserve = false) {
     if (!canvas || !sheet) return;
-    
+
     // Calculăm înălțimea totală (inclusiv ce e ascuns de scroll)
     const newHeight = Math.max(sheet.scrollHeight, sheet.offsetHeight);
     const newWidth = sheet.offsetWidth;
@@ -324,7 +334,7 @@ function resizeCanvas(preserve = false) {
         img.onload = () => {
             canvas.width = newWidth;
             canvas.height = newHeight;
-            if(ctx) ctx.drawImage(img, 0, 0);
+            if (ctx) ctx.drawImage(img, 0, 0);
         };
     } else {
         canvas.width = newWidth;
@@ -336,8 +346,8 @@ async function saveNote() {
     if (!currentNote || !editor) return;
     const db = await dbPromise;
     const note = await db.get('notebooks', noteId);
-    note.content = editor.getHTML(); 
-    if(titleInput) note.title = titleInput.value;
+    note.content = editor.getHTML();
+    if (titleInput) note.title = titleInput.value;
     note.updatedAt = new Date();
     await db.put('notebooks', note);
 }
