@@ -1,60 +1,69 @@
-name: Auto Build & Deploy 🚀
+name: Build, deploy and version 🚀
 
-# 1. CÂND PORNEȘTE?
-# De fiecare dată când dai "push" pe ramura "main"
 on:
   push:
     branches:
       - main
 
-# Îi dăm voie robotului să modifice fișierele (pentru deploy)
 permissions:
-  contents: write
+  contents: write # OBLIGATORIU: Ca să poată crea tag-ul nou!
 
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest # Robotul folosește Linux
+    runs-on: ubuntu-latest
 
     steps:
-      # Pasul A: Descarcă codul tău de pe GitHub
+      # 1. Luăm codul cu TOT istoricul (fetch-depth: 0 e critic aici!)
       - name: Checkout 🛎️
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 
 
-      # Pasul B: Instalează Node.js (ca să meargă npm și workbox)
+      # 2. GENERATORUL DE VERSIUNI (Soumeh-zz)
+      - name: Auto Versioning 🏷️
+        id: version # Îi dăm un ID ca să-l strigăm mai jos
+        uses: Soumeh-zz/auto-versioning@v1.0.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # Setări opționale (le poți șterge dacă vrei default):
+          tag_prefix: "v"       # Pune "v" în față (v1.0.2)
+          major_pattern: "major:"
+          minor_pattern: "feat:"
+          patch_pattern: "fix:"
+
+      # 3. Setup Node.js
       - name: Setup Node.js 📦
         uses: actions/setup-node@v3
         with:
           node-version: '18'
 
-      # Pasul C: Instalează librăriile (Workbox, etc.)
+      # 4. Instalăm Workbox și restul
       - name: Install Dependencies 🔧
         run: |
-            npm install
-            npm install -g workbox-cli
+          npm install
+          npm install -g workbox-cli
 
-      # Pasul D: MAGIA VERSIUNII 🕒
-      # Aici înlocuim textul "VERSION_PLACEHOLDER" cu data reală
-      - name: Inject Version Timestamp
+      # 5. INJECTĂM VERSIUNEA CALCULATĂ
+      - name: 🕒 Injectează Versiunea Soumeh
         run: |
-          # Facem o variabilă cu data (ex: v2025.01.12-14.30)
-          NEW_VER="v$(date +'%Y.%m.%d-%H.%M')"
-          echo "Versiunea generata: $NEW_VER"
+          # Așa scoți versiunea din acțiunea lui Soumeh:
+          NEW_VER="${{ steps.version.outputs.version }}"
           
-          # Înlocuim în HTML (ca să vadă userul jos în footer)
+          echo "🚀 Versiunea calculată este: $NEW_VER"
+          
+          # Injectăm în HTML
           sed -i "s/VERSION_PLACEHOLDER/$NEW_VER/g" index.html
           
-          # Înlocuim în SURSA Service Worker-ului (src-sw.js)
-          # ATENȚIE: Modificăm sursa ÎNAINTE de build!
+          # Injectăm în Service Worker (sursa)
           sed -i "s/VERSION_PLACEHOLDER/$NEW_VER/g" src-sw.js
 
-      # Pasul E: BUILD-UL TĂU (Workbox) 🏗️
-      # Asta va genera sw.js final, care va conține versiunea băgată mai sus
-      - name: Build Project
+      # 6. Build (Generare SW Final)
+      - name: 🏗️ Build Project
         run: npm run build
 
-      # Pasul F: Urcă totul pe GitHub Pages 🚀
-      - name: Deploy
+      # 7. Deploy pe GitHub Pages
+      - name: 🚀 Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: . # Urcă tot folderul curent
-          branch: gh-pages # Pe ramura specială de site
+          folder: .
+          branch: gh-pages
