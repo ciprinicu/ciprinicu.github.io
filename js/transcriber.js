@@ -7,7 +7,7 @@ class AudioTranscriber {
         
         // Dacă vrei acuratețe maximă, pune 'Xenova/whisper-small'. 
         // Dacă vrei viteză, lasă 'Xenova/whisper-base'.
-        this.modelName = 'Xenova/whisper-medium'; 
+        this.modelName = 'Xenova/whisper-base'; 
         
         this.isReady = false;
         this.installCallback = null;
@@ -92,6 +92,7 @@ class AudioTranscriber {
     }
 
     init() {
+        if(!location.href.includes("editor")) return;
         console.log("🔈 Pre-loading AI model...");
         // Apelăm install cu o funcție goală, doar ca să oblige worker-ul să încarce fișierele în RAM
         return this.install(() => {}); 
