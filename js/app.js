@@ -4,22 +4,19 @@ import { NotebookManager } from './db.js';
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        // Înregistrăm fișierul generat de Workbox (sw.js, nu src-sw.js!)
+        // Înregistrăm fișierul generat de Workbox
         navigator.serviceWorker.register('./sw.js').then(registration => {
             console.log('✅ Service Worker înregistrat cu succes:', registration.scope);
 
             // Ascultăm dacă apare o versiune nouă
             registration.onupdatefound = () => {
                 const installingWorker = registration.installing;
-                if (installingWorker == null) {
-                    return;
-                }
+                if (installingWorker == null) return;
+                
                 installingWorker.onstatechange = () => {
                     if (installingWorker.state === 'installed') {
                         if (navigator.serviceWorker.controller) {
-                            // AICI E MAGIA:
-                            // Dacă avem deja un SW activ și a apărut unul nou, 
-                            // înseamnă că e un update. Dăm refresh!
+                            // Update disponibil
                             console.log('🔄 Conținut nou disponibil. Se face refresh...');
                             window.location.reload();
                         } else {
@@ -58,49 +55,53 @@ async function initApp() {
         
         transcriber.init(); // Pornim AI-ul în background
     }
+}
 
-    // În setupDashboardEvents() sau initApp()
+// --- EXPORT & IMPORT ---
+// (Le-am mutat aici ca să fie activate la pornire)
 
-// --- EXPORT ---
-document.getElementById('btn-export').onclick = async () => {
-    const data = await NotebookManager.exportAllData();
-    const blob = new Blob([data], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    
-    // Creăm un link invizibil să downloadăm fișierul
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `TraduCipri_Backup_${new Date().toISOString().slice(0,10)}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-};
+const btnExport = document.getElementById('btn-export');
+if (btnExport) {
+    btnExport.onclick = async () => {
+        const data = await NotebookManager.exportAllData();
+        const blob = new Blob([data], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `TraduCipri_Backup_${new Date().toISOString().slice(0,10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    };
+}
 
-// --- IMPORT ---
 const fileInput = document.getElementById('file-import');
 const btnImport = document.getElementById('btn-import-trigger');
 
-btnImport.onclick = () => fileInput.click();
+if (btnImport && fileInput) {
+    btnImport.onclick = () => fileInput.click();
 
-fileInput.onchange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+    fileInput.onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = async (event) => {
-        const jsonContent = event.target.result;
-        const success = await NotebookManager.importData(jsonContent);
-        
-        if (success) {
-            alert("Date restaurate cu succes! Pagina se va reîncărca.");
-            location.reload();
-        } else {
-            alert("Fișier corupt sau invalid.");
-        }
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+            const jsonContent = event.target.result;
+            const success = await NotebookManager.importData(jsonContent);
+            
+            if (success) {
+                alert("Date restaurate cu succes! Pagina se va reîncărca.");
+                location.reload();
+            } else {
+                alert("Fișier corupt sau invalid.");
+            }
+        };
+        reader.readAsText(file);
     };
-    reader.readAsText(file);
-};
 }
+
 
 // --- 2. LOGICA DASHBOARD (Caiete, Modal, Duplicate, Delete) ---
 
@@ -111,8 +112,6 @@ function setupDashboardEvents() {
     const btnNew = document.getElementById('btn-new-notebook');
     if(btnNew) {
         btnNew.onclick = openCreateModal;
-    } else {
-        console.warn("Butonul 'btn-new-notebook' lipsește din HTML!");
     }
 
     // 2. Butonul Anulează (din Modal)
@@ -148,29 +147,33 @@ function closeCreateModal() {
     document.getElementById('create-modal').style.display = 'none';
 }
 
-// Funcția principală care randează lista
+// Variabilă globală să ținem minte pe ce caiet am ținut apăsat
+let activeNotebookId = null;
+
+// --- Funcția de randare actualizată ---
 export async function loadDashboard() {
     const listContainer = document.getElementById('notebook-list');
     if (!listContainer) return;
 
     listContainer.innerHTML = ''; 
-    
     const notebooks = await NotebookManager.getAll();
     
     if (notebooks.length === 0) {
-        listContainer.innerHTML = '<p style="color:white; opacity:0.6; text-align:center; width:100%;">Nu ai niciun caiet. Apasă pe +</p>';
+        listContainer.innerHTML = '<p style="color:white; opacity:0.6; text-align:center;">Nu ai niciun caiet. Apasă pe +</p>';
         return;
     }
 
-    // Le parcurgem invers (cele noi sus)
     notebooks.reverse().forEach(note => {
         const card = document.createElement('div');
         card.className = `notebook-card theme-${note.theme || 'default'}`;
+        // Salvăm ID-ul direct pe element ca să-l găsim ușor
+        card.dataset.id = note.id; 
         
+        // Păstrăm butoanele VECHI doar pentru Desktop (ascunse din CSS pe mobil)
         card.innerHTML = `
-            <div class="card-actions">
-                <button class="action-btn btn-dup" title="Duplică">❐</button>
-                <button class="action-btn btn-delete" title="Șterge">🗑️</button>
+            <div class="card-actions desktop-only">
+                <button class="action-btn btn-dup">❐</button>
+                <button class="action-btn btn-delete">🗑️</button>
             </div>
             <div class="card-icon">📓</div>
             <div class="card-info">
@@ -179,40 +182,114 @@ export async function loadDashboard() {
             </div>
         `;
         
-        // 1. CLICK PE CARD -> Deschide Editorul
+        // Logică Click Normal (Deschide)
         card.onclick = () => openEditor(note.id);
 
-        // 2. CLICK PE DUPLICATE (oprim propagarea să nu deschidă editorul)
+        // Logică Butoane Desktop (Event Bubbling)
         const btnDup = card.querySelector('.btn-dup');
-        btnDup.onclick = async (e) => {
-            e.stopPropagation();
-            await duplicateNotebook(note);
-        };
-
-        // 3. CLICK PE DELETE
         const btnDel = card.querySelector('.btn-delete');
-        btnDel.onclick = async (e) => {
-            e.stopPropagation();
-            if(confirm(`Sigur ștergi caietul "${note.title}"?`)) {
-                await NotebookManager.delete(note.id);
-                loadDashboard();
-            }
+        
+        btnDup.onclick = (e) => { e.stopPropagation(); duplicateNotebook(note); };
+        btnDel.onclick = (e) => { 
+            e.stopPropagation(); 
+            if(confirm(`Stergi "${note.title}"?`)) { NotebookManager.delete(note.id).then(loadDashboard); }
         };
         
         listContainer.appendChild(card);
     });
+
+    // Activăm senzorii de atingere
+    activateMobileLongPress();
+}
+
+
+// --- LOGICA DE BOTTOM SHEET (NOUA) ---
+
+function activateMobileLongPress() {
+    if (!('ontouchstart' in window)) return; // Doar pe mobil
+
+    const cards = document.querySelectorAll('.notebook-card');
+    const sheetOverlay = document.getElementById('mobile-sheet-overlay');
+
+    // Setup butoane din Meniul de Jos (o singură dată)
+    if (!sheetOverlay.dataset.init) {
+        sheetOverlay.dataset.init = "true"; // Marcam că le-am legat deja
+        
+        document.getElementById('sheet-cancel').onclick = closeSheet;
+        sheetOverlay.onclick = (e) => {
+            if(e.target === sheetOverlay) closeSheet(); // Click pe fundal închide
+        };
+
+        // BUTON DUPLICĂ (DIN SHEET)
+        document.getElementById('sheet-dup').onclick = async () => {
+            if (!activeNotebookId) return;
+            const notes = await NotebookManager.getAll();
+            const targetNote = notes.find(n => n.id === activeNotebookId);
+            if(targetNote) await duplicateNotebook(targetNote);
+            closeSheet();
+        };
+
+        // BUTON ȘTERGE (DIN SHEET)
+        document.getElementById('sheet-del').onclick = async () => {
+            if (!activeNotebookId) return;
+            if (confirm("Sigur ștergi acest caiet?")) {
+                await NotebookManager.delete(activeNotebookId);
+                await loadDashboard();
+            }
+            closeSheet();
+        };
+    }
+
+    // Loop pe carduri pentru Long Press
+    cards.forEach(card => {
+        let pressTimer;
+        
+        card.addEventListener('touchstart', (e) => {
+            pressTimer = setTimeout(() => {
+                // S-a declanșat Long Press!
+                if (navigator.vibrate) navigator.vibrate(50);
+                
+                activeNotebookId = parseInt(card.dataset.id); // Salvăm ID-ul
+                openSheet(); // Deschidem meniul
+                
+            }, 600);
+        }, { passive: true });
+
+        const cancel = () => clearTimeout(pressTimer);
+        card.addEventListener('touchend', cancel);
+        card.addEventListener('touchmove', cancel);
+        
+        // Blocăm click-ul normal dacă meniul e deschis
+        card.addEventListener('contextmenu', e => {
+            e.preventDefault(); // Oprește meniul de click dreapta al browserului
+        });
+    });
+}
+
+// Helper Functions pentru Sheet
+function openSheet() {
+    const sheet = document.getElementById('mobile-sheet-overlay');
+    sheet.style.display = 'flex'; // Asigurăm că e vizibil
+    // Mic delay ca să prindă animația CSS
+    setTimeout(() => { sheet.classList.add('active'); }, 10);
+}
+
+function closeSheet() {
+    const sheet = document.getElementById('mobile-sheet-overlay');
+    sheet.classList.remove('active');
+    setTimeout(() => { sheet.style.display = 'none'; }, 300); // Așteptăm animația
 }
 
 // Funcția de Duplicare
 async function duplicateNotebook(originalNote) {
-    const copy = { ...originalNote }; // Copiem obiectul
-    delete copy.id; // Ștergem ID-ul vechi (DB-ul va pune unul nou)
+    const copy = { ...originalNote }; 
+    delete copy.id; 
     
     copy.title = `${copy.title} (Copie)`;
     copy.updatedAt = new Date();
     copy.createdAt = new Date();
     
-    await NotebookManager.add(copy); // Folosim metoda add din db.js
+    await NotebookManager.add(copy); 
     await loadDashboard();
 }
 
@@ -231,32 +308,26 @@ function openEditor(id) {
     window.location.href = `editor.html?id=${id}`;
 }
 
-
 // --- 3. LOGICA WIZARD (Instalare) ---
-// Rămâne neschimbată, doar o includem pentru când e prima dată
 
 function setupWizardEvents() {
-    // Pasul 1: Bun venit -> Verificăm dacă știm numele
+    // Pasul 1
     document.getElementById('btn-step-1').onclick = () => {
         const savedName = localStorage.getItem('traduCipriName');
-        
         if (savedName) {
-            // Îl știm! Sărim direct la Pasul 3 (Download)
-            console.log("Nume găsit (" + savedName + "), sărim peste pasul 2.");
             nextStep(3);
-            triggerAIInstall(); // Pornim download-ul imediat
+            triggerAIInstall(); 
         } else {
-            // Nu-l știm, mergem la Pasul 2 (Să ne zică numele)
             nextStep(2);
         }
     };
 
-    // Pasul 2: Salvare Nume -> Pasul 3
+    // Pasul 2
     document.getElementById('btn-step-2').onclick = () => {
-        saveNameAndStart(); // Asta salvează și apoi trece la 3 și triggerAIInstall
+        saveNameAndStart(); 
     };
 
-    // Pasul 4: Final -> Închide
+    // Pasul 4
     document.getElementById('btn-step-4').onclick = () => closeWizard();
 }
 
@@ -282,10 +353,7 @@ async function triggerAIInstall() {
 
     const filesTracker = {}; 
 
-    // AICI E SCHIMBAREA: Callback-ul primește direct (percent, fileName)
     const success = await transcriber.install((percent, fileName) => {
-        
-        // Logica de afișare rămâne la fel, doar că folosim parametrii direcți
         if (!fileName) return;
 
         if (!filesTracker[fileName]) {
@@ -342,9 +410,9 @@ function closeWizard() {
     overlay.style.opacity = '0';
     setTimeout(() => {
         overlay.style.display = 'none';
-        initApp(); // Repornim aplicația să intre în dashboard
+        initApp(); 
     }, 500);
 }
 
-// Start
+// Start App
 initApp();

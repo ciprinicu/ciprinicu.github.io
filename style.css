@@ -198,6 +198,49 @@ html, body {
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
 
+/* AI GRIJA LA ASTA */
+
+/* --- APP FEEL: FĂRĂ SELECTARE --- */
+
+/* Aplicăm asta pe elementele de interfață din Dashboard */
+body, 
+.notebook-card, 
+.sheet-content, 
+.sheet-btn,
+button,
+h1, h2, h3, span, p {
+    /* 1. Blochează selectarea textului (nu se mai albăstrește) */
+    -webkit-user-select: none; /* Safari / Chrome */
+    -moz-user-select: none;    /* Firefox */
+    -ms-user-select: none;     /* Edge */
+    user-select: none;         /* Standard */
+
+    /* 2. Blochează meniul de sistem la Long Press pe iOS (lupa aia enervantă) */
+    -webkit-touch-callout: none;
+
+    /* 3. Blochează pătratul ăla gri/albastru care apare când dai tap pe Android */
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* --- EXCEPȚII IMPORTANTE --- */
+/* Trebuie NEAPĂRAT să lăsăm userul să scrie în input-uri și textarea! */
+input, 
+textarea, 
+[contenteditable="true"] {
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    user-select: text !important;
+    -webkit-touch-callout: default !important;
+    cursor: text;
+}
+
+/* ============================== */
+
+
+
+
+
+
 /* --- STRUCTURA FLEXIBILĂ (STICKY FOOTER) --- */
 
 /* Elementul <main> va ocupa tot spațiul liber și va împinge footer-ul jos */
@@ -228,6 +271,100 @@ main {
 
 /* --- MOBILE OPTIMIZATION: GRID VIEW (AERISIT & CENTRAT) --- */
 @media (max-width: 768px) {
+
+    /* --- BOTTOM SHEET (MENIU MOBIL) --- */
+.sheet-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.6); /* Întuneric în spate */
+    backdrop-filter: blur(3px);
+    z-index: 9999;
+    
+    /* Ascuns default */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    
+    /* Flex ca să aliniem meniul jos */
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+/* Când e activ */
+.sheet-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.sheet-content {
+    background: #1e293b; /* Culoarea de fundal (Dark Blue) */
+    width: 100%;
+    max-width: 500px; /* Să nu fie imens pe tablete */
+    border-radius: 20px 20px 0 0; /* Rotunjit sus */
+    padding: 20px;
+    padding-bottom: 40px; /* Mai mult loc jos pt iPhone */
+    
+    transform: translateY(100%); /* Ascuns sub ecran */
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Când overlay-ul e activ, ridicăm meniul */
+.sheet-overlay.active .sheet-content {
+    transform: translateY(0);
+}
+
+/* Linia aia mică de design (Handle) */
+.sheet-handle {
+    width: 40px;
+    height: 4px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 2px;
+    margin: 0 auto 20px auto;
+}
+
+.sheet-content h3 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: rgba(255,255,255,0.7);
+    font-size: 1rem;
+}
+
+/* Butoanele din meniu */
+.sheet-btn {
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 10px;
+    border: none;
+    background: rgba(255,255,255,0.05);
+    color: white;
+    font-size: 1.1rem;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.sheet-btn:active {
+    background: rgba(255,255,255,0.15);
+    transform: scale(0.98);
+}
+
+.btn-danger {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+}
+
+.btn-cancel {
+    margin-top: 10px;
+    background: transparent;
+    color: rgba(255,255,255,0.5);
+}
     
     /* 1. Containerul Grilă - REPARAT TOTAL */
     .notebook-grid {
@@ -266,6 +403,40 @@ main {
         position: relative !important;
     }
 
+    /* 1. DEFAULT: Butoanele sunt ASCUNSE complet */
+    .notebook-card .card-actions {
+        display: none !important; 
+        
+        /* Păstrăm stilul Gamepad pentru când apar */
+        width: 100% !important;
+        top: 10px !important;
+        left: 0 !important;
+        right: 0 !important;
+        justify-content: space-between !important;
+        padding: 0 10px !important;
+        pointer-events: none !important; /* Ghost mode pentru container */
+        z-index: 10 !important;
+    }
+
+    /* 2. STAREA ACTIVĂ: Când ții apăsat, apar butoanele */
+    .notebook-card.mobile-edit .card-actions {
+        display: flex !important;
+        animation: popInAction 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    
+    /* Animație șmecheră de apariție (Bounce) */
+    @keyframes popInAction {
+        from { opacity: 0; transform: scale(0.8); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    /* 3. Când e activ, întunecăm puțin cardul ca să iasă butoanele în evidență */
+    .notebook-card.mobile-edit {
+        background: rgba(30, 41, 59, 0.95) !important;
+        border-color: var(--primary) !important;
+        transform: scale(0.98) !important; /* Se micșorează puțin ca efect de presiune */
+    }
+
     /* 3. Titlul - Centrat frumos */
     .notebook-card h3 {
         width: 100% !important;
@@ -280,6 +451,22 @@ main {
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
+    }
+
+    .action-btn {
+        pointer-events: auto !important;
+        
+        /* Le facem puțin mai mari pentru degete */
+        width: 42px !important;
+        height: 42px !important;
+        background: rgba(15, 23, 42, 0.7) !important; /* Mai închis, să se vadă */
+        border: 1px solid rgba(255,255,255,0.1) !important;
+    }
+    
+    /* Facem iconița din buton puțin mai mare */
+    .action-btn svg, 
+    .action-btn i {
+        font-size: 1.2rem !important;
     }
 
     /* 4. Butonul de Ștergere */
