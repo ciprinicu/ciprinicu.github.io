@@ -7,7 +7,7 @@ class AudioTranscriber {
         
         // Dacă vrei acuratețe maximă, pune 'Xenova/whisper-small'. 
         // Dacă vrei viteză, lasă 'Xenova/whisper-base'.
-        this.modelName = 'Xenova/whisper-base'; 
+        this.modelName = 'Xenova/whisper-medium'; 
         
         this.isReady = false;
         this.installCallback = null;
