@@ -271,6 +271,36 @@ main {
     margin: 0;
 }
 
+/* --- INDICATOR SALVARE --- */
+#save-status {
+    position: fixed;
+    top: 2%;
+    right: 50%; /* Lângă avatar/meniu */
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    z-index: 200;
+}
+
+#save-status.visible {
+    opacity: 1;
+}
+
+#save-status.saving {
+    color: var(--accent-blue);
+}
+
+#save-status.saved {
+    color: var(--accent-green);
+}
+
+#save-status.error {
+    color: #ef4444;
+}
+
 /* --- MOBILE OPTIMIZATION: GRID VIEW (AERISIT & CENTRAT) --- */
 @media (max-width: 768px) {
 
