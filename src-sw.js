@@ -1,6 +1,6 @@
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/6.4.1/workbox-sw.js');
 
-const CACHE_VERSION = 'v0.2.4';
+const CACHE_VERSION = 'v0.2.5';
 
 // Verificăm dacă s-a încărcat Workbox
 if (workbox) {

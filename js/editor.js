@@ -10,12 +10,13 @@ import MarkdownIt from 'https://esm.sh/markdown-it';
 
 // --- CONFIGURARE GLOBALĂ ---
 let editor = null;
-const mdParser = new MarkdownIt();
-let saveTimeout = null; // <--- NECESAR PENTRU SAVE INTELIGENT
+// FIX 1: Activăm html: true ca să nu șteargă pozele dacă le trece prin parser din greșeală
+const mdParser = new MarkdownIt({ html: true });
+let saveTimeout = null;
 
 // Elemente DOM - Editor & Desen
 const titleInput = document.getElementById('doc-title');
-const saveStatus = document.getElementById('save-status'); // <--- NECESAR PENTRU FEEDBACK
+const saveStatus = document.getElementById('save-status'); 
 const btnMic = document.getElementById('btn-mic');
 const canvas = document.getElementById('draw-layer');
 const sheet = document.getElementById('scroll-container'); 
@@ -55,16 +56,11 @@ async function init() {
             element: document.getElementById('tiptap-editor'),
             extensions: [
                 StarterKit,
+                // FIX 2: Configurare CORECTĂ pentru imagini
+                // Setările allowBase64 și inline trebuie să fie la nivelul de bază, nu în 'resize'
                 ImageExtension.configure({
-                    resize: {
-                        enabled: true,
-                        directions: ['top', 'bottom', 'left', 'right'], 
-                        minWidth: 50,
-                        minHeight: 50,
-                        alwaysPreserveAspectRatio: true,
-                        allowBase64: true,
-                        inline: true,      
-                    }
+                    inline: true,      
+                    allowBase64: true, // Asta e CHEIA ca să nu dispară pozele la load!
                 }), 
                 Placeholder.configure({
                     placeholder: 'Scrie, dictează sau pune o poză...',
@@ -74,7 +70,7 @@ async function init() {
             content: '',
             autofocus: true,
             onUpdate: ({ editor }) => {
-                triggerSave(false); // <--- MODIFICAT: Salvare inteligentă (nu blochează)
+                triggerSave(false); 
                 resizeCanvas(true);
             },
         });
@@ -120,15 +116,17 @@ async function init() {
     if (currentNote.content && editor) {
         if (titleInput) titleInput.value = currentNote.title;
 
-        const seemsLikeMarkdown = !currentNote.content.trim().startsWith('<') &&
-            (currentNote.content.includes('#') || currentNote.content.includes('**'));
-
-        if (seemsLikeMarkdown) {
-            console.log("🔄 Detectat Markdown vechi -> Convertim în HTML...");
+        // Verificăm conținutul
+        const content = currentNote.content.trim();
+        
+        // Dacă începe cu tag-uri HTML (<p, <img, <h1), îl încărcăm direct
+        if (content.startsWith('<')) {
+            editor.commands.setContent(content);
+        } else {
+            // Dacă pare a fi Markdown vechi, îl convertim
+            // Dar acum mdParser are html: true, deci nu va șterge pozele existente
             const parsedHtml = mdParser.render(currentNote.content);
             editor.commands.setContent(parsedHtml);
-        } else {
-            editor.commands.setContent(currentNote.content);
         }
     }
 
@@ -147,7 +145,7 @@ async function init() {
     if (titleInput) {
         titleInput.addEventListener('change', () => {
             currentNote.title = titleInput.value;
-            triggerSave(true); // Urgent
+            triggerSave(true); 
         });
     }
 
@@ -168,7 +166,7 @@ if (btnAddImg && imgInput) {
         const files = event.target.files;
         if (!files || files.length === 0) return;
 
-        showStatus('saving'); // <--- FEEDBACK IMEDIAT
+        showStatus('saving'); 
 
         const fileArray = Array.from(files);
 
@@ -203,7 +201,7 @@ if (btnAddImg && imgInput) {
         // Salvare și Scroll la final
         setTimeout(() => {
             if (editor) editor.commands.scrollIntoView();
-            triggerSave(true); // <--- SALVARE URGENTĂ
+            triggerSave(true); 
         }, 100);
     };
 }
@@ -267,7 +265,7 @@ function insertTextSmart(text) {
     const htmlFragment = mdParser.render(cleanText);
     editor.commands.insertContent(htmlFragment);
     editor.commands.scrollIntoView();
-    triggerSave(false); // <--- SALVARE TEXT
+    triggerSave(false); 
 }
 
 // --- 4. LOGICA DESEN ---
@@ -326,7 +324,7 @@ if (btnClear) {
     };
 }
 
-// --- 5. HELPERS SI SALVARE (MODIFICAT PT FEEDBACK) ---
+// --- 5. HELPERS SI SALVARE ---
 
 function resizeCanvas(preserve = false) {
     if (!canvas || !sheet) return;
@@ -349,17 +347,17 @@ function resizeCanvas(preserve = false) {
     }
 }
 
-// === NOUL SISTEM DE SALVARE (STRICT NECESAR) ===
+// === SISTEM DE SALVARE ===
 
 function triggerSave(isUrgent) {
-    showStatus('saving'); // Arată că se lucrează
+    showStatus('saving'); 
     
     if (saveTimeout) clearTimeout(saveTimeout);
 
     if (isUrgent) {
-        saveNote(); // Execută imediat
+        saveNote(); 
     } else {
-        saveTimeout = setTimeout(saveNote, 1000); // Așteaptă 1 secundă
+        saveTimeout = setTimeout(saveNote, 1000); 
     }
 }
 
@@ -368,15 +366,14 @@ async function saveNote() {
     
     try {
         const db = await dbPromise;
-        // Re-citim nota din DB ca să fim siguri că nu suprascriem aiurea
         const note = await db.get('notebooks', noteId) || currentNote;
         
-        note.content = editor.getHTML(); // Aici e HTML-ul cu imaginile Base64
+        note.content = editor.getHTML(); 
         if (titleInput) note.title = titleInput.value;
         note.updatedAt = new Date();
         
-        await db.put('notebooks', note); // Așteptăm confirmarea DB
-        showStatus('saved'); // Confirmăm vizual
+        await db.put('notebooks', note); 
+        showStatus('saved'); 
     } catch (e) {
         console.error("Save failed", e);
         showStatus('error');
@@ -393,9 +390,8 @@ async function saveDrawing() {
     showStatus('saved');
 }
 
-// Helper simplu pentru UI (ca să nu crape dacă nu ai adăugat HTML-ul)
 function showStatus(state) {
-    if (!saveStatus) return; // Protecție dacă elementul nu există
+    if (!saveStatus) return; 
     
     saveStatus.classList.add('visible');
     saveStatus.className = 'visible ' + state;
