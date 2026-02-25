@@ -1,140 +1,181 @@
 <!DOCTYPE html>
-<html lang="ro">
+<html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TraduCipri - Caiet Inteligent</title>
-    
+    <title>TraduCipri - Smart Notebook</title>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <meta name="description" content="Transformă cursurile și ideile tale în text instantaneu. TraduCipri folosește AI direct pe telefonul tău pentru a transcrie vocea în notițe organizate. Sigur, gratuit și fără internet.">
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
-    <meta name="keywords" content="transcriere audio, speech to text romana, notite curs, ai, voice memo, student, productivitate, aplicatie notite">
-
+    <meta name="description"
+        content="Transform your lectures and ideas into text instantly. TraduCipri uses advanced local processing directly on your phone.">
     <meta name="author" content="Niculae Ciprian-Mihai">
-    <meta name="theme-color" content="#1e293b"> <meta property="og:type" content="website">
-    <meta property="og:url" content="https://numele-tau.github.io/proiect/"> <meta property="og:title" content="TraduCipri - Nu mai scrie de mână, lasă AI-ul.">
-    <meta property="og:description" content="Ai obosit la cursuri? Înregistrează și primește textul gata formatat. Confidențialitate maximă, totul rulează local pe telefonul tău.">
-    <meta property="og:image" content="https://numele-tau.github.io/proiect/assets/social-preview.jpg"> <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="TraduCipri | Asistentul tău personal la cursuri">
-    <meta name="twitter:description" content="Transcrie voce în text direct în browser. Fără cont, fără upload în cloud. Simplu și rapid.">
+    <meta name="theme-color" content="#1e293b">
 
     <link rel="manifest" href="manifest.json" />
     <link rel="stylesheet" href="style.css">
-    <script src="index.js" defer></script>
+    <script src="index.js" type="module"></script>
     <script type="module" src="./js/app.js"></script>
+    
 </head>
+
 <body>
 
     <div id="welcome-wizard" class="wizard-overlay" style="display: none;">
         <div class="wizard-card">
-            
             <div id="step-1" class="wizard-step active">
                 <div class="wizard-icon">👋</div>
-                <h2>Bun venit în TraduCipri</h2>
-                <p>Caietul tău inteligent, offline și securizat.</p>
-                <button id="btn-step-1" class="primary-btn full-width">Să începem</button>
+                <h2>Welcome to TraduCipri</h2>
+                <p>Your smart, offline, and secure digital notebook.</p>
+                <button id="btn-step-1" class="primary-btn full-width">Let's get started</button>
             </div>
-
             <div id="step-2" class="wizard-step">
                 <div class="wizard-icon">👤</div>
-                <h2>Cum să-ți spunem?</h2>
-                <p>Pentru o experiență personalizată.</p>
-                <input type="text" id="user-name-input" class="glass-input" placeholder="Numele tău..." autocomplete="off">
-                <button id="btn-step-2" class="primary-btn full-width" style="margin-top: 20px;">Continuă</button>
+                <h2>What should we call you?</h2>
+                <p>For a personalized experience.</p>
+                <input type="text" id="user-name-input" class="glass-input" placeholder="Your name..."
+                    autocomplete="off">
+                <button id="btn-step-2" class="primary-btn full-width" style="margin-top: 20px;">Continue</button>
             </div>
-
             <div id="step-3" class="wizard-step">
                 <div class="wizard-icon">🚀</div>
-                <h2>Configurare Sistem</h2>
-                <p class="status-text" id="install-status">Se inițializează AI-ul...</p>
-                
+                <h2>System Setup</h2>
+                <p class="status-text" id="install-status">Initializing processing engine...</p>
                 <div id="download-list" class="download-container"></div>
             </div>
-
             <div id="step-4" class="wizard-step">
                 <div class="wizard-icon">✅</div>
-                <h2>Totul este pregătit!</h2>
-                <p>Poți folosi aplicația oricând, fără internet.</p>
-                <button id="btn-step-4" class="primary-btn full-width success-btn">Deschide Caietul</button>
+                <h2>Everything is ready!</h2>
+                <p>You can use the app anytime, with complete privacy.</p>
+                <button id="btn-step-4" class="primary-btn full-width success-btn">Open Notebook</button>
             </div>
-
         </div>
     </div>
 
     <div id="app-container" style="display: none;">
-        
         <header class="app-header">
             <div>
-                <h1 id="app-greeting">Salut!</h1>
-                <p class="app-subtitle">Spațiul tău de studiu offline.</p>
+                <h1 id="app-greeting">Hello!</h1>
+                <p class="app-subtitle">Your private study space.</p>
             </div>
-            <!-- <div class="user-avatar">🎓</div> -->
+            <button id="btn-open-settings" class="icon-btn"
+                style="background: rgba(255,255,255,0.05); font-size: 1.2rem; width: 45px; height: 45px; border-radius: 12px;">⚙️</button>
         </header>
 
         <main>
             <section class="content-section">
-                <h2 class="section-title">Caietele Tale</h2>
+                <h2 class="section-title">Your Notebooks</h2>
                 <div id="notebook-list" class="notebook-grid">
-                    </div>
-            </section>
-
-            <section class="content-section settings-card">
-                <h2 class="section-title" style="margin-bottom: 15px;">🔧 Administrare Date</h2>
-                <p style="color: #94a3b8; margin-bottom: 20px; font-size: 0.9rem;">Salvează-ți progresul in device pentru siguranță.</p>
-                <div class="backup-actions">
-                    <button id="btn-export" class="secondary-btn">
-                        <span>⬇️</span> Descarcă Backup
-                    </button>
-                    <button id="btn-import-trigger" class="secondary-btn">
-                        <span>⬆️</span> Încarcă Backup
-                    </button>
-                    <input type="file" id="file-import" style="display: none" accept=".json">
                 </div>
             </section>
         </main>
 
-        <button id="btn-new-notebook" class="fab-btn" title="Caiet Nou">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        <button id="btn-new-notebook" class="fab-btn" title="New Notebook">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
         </button>
 
         <footer class="app-footer">
-        Versiune: <span id="ver">VERSION_PLACEHOLDER</span>
+            Version: <span id="ver">VERSION_PLACEHOLDER</span>
         </footer>
+    </div>
 
+    <div id="settings-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-card"
+            style="max-width: 500px; width: 92%; max-height: 85vh; overflow-y: auto; text-align: left;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                <h2 style="margin: 0;">Settings</h2>
+                <button id="btn-close-settings"
+                    style="background: transparent; border: none; color: white; font-size: 1.5rem; cursor: pointer; padding: 5px;">✕</button>
+            </div>
+
+            <div class="settings-content">
+                <h3 style="font-size: 1rem; margin-bottom: 10px; color: var(--primary);">🔧 Data Management</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">Manage backups to keep
+                    your data safe.</p>
+
+                <div class="backup-actions"
+                    style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 30px;">
+                    <button id="btn-export" class="secondary-btn"
+                        style="padding: 12px; font-size: 0.85rem;"><span>⬇️</span> Export</button>
+                    <button id="btn-import-trigger" class="secondary-btn"
+                        style="padding: 12px; font-size: 0.85rem;"><span>⬆️</span> Import</button>
+                    <input type="file" id="file-import" style="display: none" accept=".json">
+                </div>
+
+                <div class="sync-container" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+                    <h3 style="font-size: 1rem; margin-bottom: 10px; color: var(--primary);">🔄 Live Sync</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">Sync devices directly
+                        via Peer-to-Peer.</p>
+
+                    <div class="sync-grid" style="display: flex; flex-direction: column; gap: 20px;">
+                        <div class="sync-box"
+                            style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; text-align: center;">
+                            <span class="label"
+                                style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted);">Your
+                                Code</span>
+                            <h2 id="my-peer-id"
+                                style="margin: 10px 0; letter-spacing: 5px; font-family: monospace; color: white;">
+                                ------</h2>
+                            <div id="qr-container"
+                                style="display: inline-block; background: white; padding: 8px; border-radius: 8px;">
+                            </div>
+                        </div>
+
+                        <div class="sync-box">
+                            <span class="label"
+                                style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 10px;">Connect
+                                to Device</span>
+                            <input type="number" id="sync-peer-input" class="glass-input" placeholder="Enter 6 digits"
+                                maxlength="6" style="margin-bottom: 15px;">
+                            <div class="sync-buttons" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                <button id="btn-sync-connect" class="primary-btn"
+                                    style="padding: 10px;">Connect</button>
+                                <button id="btn-sync-scan" class="secondary-btn" style="padding: 10px;">Scan QR</button>
+                            </div>
+                            <div id="qr-reader" style="margin-top: 15px; border-radius: 12px; overflow: hidden;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="create-modal" class="modal-overlay" style="display: none;">
         <div class="modal-card">
-            <h3 class="modal-title">Caiet Nou</h3>
-            <input type="text" id="notebook-title" class="ghost-input" placeholder="Ex: Curs Portugheză..." autocomplete="off">
-            
+            <h3 class="modal-title">New Notebook</h3>
+            <input type="text" id="notebook-title" class="ghost-input" placeholder="Ex: Lecture Notes..."
+                autocomplete="off">
             <div class="modal-actions">
-                <button id="btn-cancel-modal" class="btn-cancel">Anulează</button>
-                <button id="btn-confirm-create" class="primary-btn" style="width: auto;">Creează</button>
+                <button id="btn-cancel-modal" class="btn-cancel">Cancel</button>
+                <button id="btn-confirm-create" class="primary-btn" style="width: auto;">Create</button>
             </div>
         </div>
     </div>
 
     <div id="mobile-sheet-overlay" class="sheet-overlay">
-    <div class="sheet-content">
-        <div class="sheet-handle"></div> <h3>Ce facem cu acest caiet?</h3>
-        
-        <div class="sheet-actions">
-            <button id="sheet-dup" class="sheet-btn">
-                <span>❐</span> Duplică Caietul
-            </button>
-            <button id="sheet-del" class="sheet-btn btn-danger">
-                <span>🗑️</span> Șterge Caietul
-            </button>
+        <div class="sheet-content">
+            <div class="sheet-handle"></div>
+            <h3>Manage this notebook</h3>
+            <div class="sheet-actions">
+                <button id="sheet-dup" class="sheet-btn"><span>❐</span> Duplicate Notebook</button>
+                <button id="sheet-del" class="sheet-btn btn-danger"><span>🗑️</span> Delete Notebook</button>
+            </div>
+            <button id="sheet-cancel" class="sheet-btn btn-cancel">Cancel</button>
         </div>
-        
-        <button id="sheet-cancel" class="sheet-btn btn-cancel">Anulează</button>
     </div>
-</div>
 
 </body>
+
 </html>
