@@ -2,12 +2,34 @@
 let peer = null;
 let html5QrCode = null;
 
+async function generateDeviceSeed() {
+    let uniqueBrowserId = localStorage.getItem('traduCipri_unique_sid');
+    if (!uniqueBrowserId) {
+        uniqueBrowserId = Math.random().toString(36).substring(2, 15);
+        localStorage.setItem('traduCipri_unique_sid', uniqueBrowserId);
+    }
+
+    const info = [
+        navigator.hardwareConcurrency || 4,
+        screen.width + "x" + screen.height,
+        uniqueBrowserId
+    ].join('|');
+
+    let hash = 0;
+    for (let i = 0; i < info.length; i++) {
+        hash = ((hash << 5) - hash) + info.charCodeAt(i);
+        hash |= 0;
+    }
+    return Math.abs(hash).toString().substring(0, 6).padEnd(6, '0');
+}
+
 export const SyncManager = {
-    init() {
-        // Generăm ID-ul pentru device-ul CURENT (cel care afișează QR-ul)
-        const myId = Math.floor(100000 + Math.random() * 900000).toString();
+    async init() {
+        const myId = await generateDeviceSeed();
         const display = document.getElementById('my-peer-id');
         if (display) display.innerText = myId;
+
+        if (peer && !peer.destroyed) return;
 
         peer = new Peer(myId);
 
@@ -19,54 +41,88 @@ export const SyncManager = {
                     text: id,
                     width: 160,
                     height: 160,
-                    correctLevel: QRCode.CorrectLevel.H // Nivel ridicat de eroare pentru scanare rapidă
+                    correctLevel: QRCode.CorrectLevel.H
                 });
             }
+            this.renderQuickSyncButton();
         });
 
-        // Ascultăm conexiunile (Device-ul care primește datele)
         peer.on('connection', (conn) => {
             conn.on('data', async (data) => {
-                if (data.type === 'SYNC_ALL_DATA') {
-                    // Mesaj scurt de confirmare și gata
-                    if (confirm("New notebooks detected! Sync now?")) {
-                        const success = await window.NotebookManager.importData(data.payload);
-                        if (success) location.reload();
-                    }
+                if (data.type === 'REQUEST_DATA') {
+                    const allData = await window.NotebookManager.exportAllData();
+                    conn.send({ type: 'SEND_DATA_BACK', payload: allData });
                 }
             });
         });
     },
 
-    // --- CAMERA SCANNER (AUTOMAT) ---
+    // Aici e șmecheria: randează butonul dacă avem "memorie"
+    renderQuickSyncButton() {
+        const lastId = localStorage.getItem('lastSyncPeerId');
+        const container = document.getElementById('quick-sync-container');
+        if (!container) return;
+
+        if (lastId) {
+            container.innerHTML = `
+                <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 12px; text-align: center;">
+                    <p style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 10px;">Ultimul device: ${lastId}</p>
+                    <button id="btn-quick-sync" class="btn-primary" style="width: 100%;">
+                        ⚡ Quick Sync
+                    </button>
+                </div>
+            `;
+            document.getElementById('btn-quick-sync').onclick = () => this.connect(lastId);
+        } else {
+            container.innerHTML = '';
+        }
+    },
+
+    async connect(targetId) {
+        if (!peer) return;
+
+        // Feedback vizual
+        const btn = document.getElementById('btn-quick-sync');
+        if (btn) btn.innerText = "Connecting...";
+
+        const conn = peer.connect(targetId);
+
+        conn.on('open', () => {
+            localStorage.setItem('lastSyncPeerId', targetId);
+            conn.send({ type: 'REQUEST_DATA' });
+        });
+
+        conn.on('data', async (data) => {
+            if (data.type === 'SEND_DATA_BACK') {
+                const confirmSync = confirm("Am primit datele. Le importăm?");
+                if (confirmSync) {
+                    const success = await window.NotebookManager.importData(data.payload);
+                    if (success) location.reload();
+                }
+            }
+        });
+
+        conn.on('error', () => {
+            alert("Nu mă pot conecta. Verifică dacă laptopul are setările deschise.");
+            if (btn) btn.innerText = "⚡ Quick Sync";
+        });
+    },
+
     async startScanner() {
         const qrRegion = document.getElementById('qr-reader');
         qrRegion.style.display = 'block';
-
         html5QrCode = new Html5Qrcode("qr-reader");
-
-        const config = {
-            fps: 15, // Mai multe cadre pe secundă pentru viteză
-            qrbox: { width: 250, height: 250 }
-        };
 
         try {
             await html5QrCode.start(
                 { facingMode: "environment" },
-                config,
+                { fps: 15, qrbox: 250 },
                 (decodedText) => {
-                    // === AUTOMATIZAREA E AICI ===
-                    console.log("Code found: " + decodedText);
-
-                    // 1. Oprim camera imediat ca să nu consume baterie
                     this.stopScanner();
-
-                    // 2. Ne conectăm automat la ID-ul scanat
                     this.connect(decodedText);
                 }
             );
         } catch (err) {
-            console.error("Camera error:", err);
             qrRegion.style.display = 'none';
         }
     },
@@ -77,30 +133,5 @@ export const SyncManager = {
                 document.getElementById('qr-reader').style.display = 'none';
             }).catch(() => { });
         }
-    },
-
-    async connect(targetId) {
-        if (!peer) return;
-
-        // Feedback vizual că se întâmplă ceva
-        const status = document.getElementById('my-peer-id');
-        if (status) status.innerText = "CONNECTING...";
-
-        const conn = peer.connect(targetId);
-
-        conn.on('open', async () => {
-            try {
-                const allData = await window.NotebookManager.exportAllData();
-                conn.send({
-                    type: 'SYNC_ALL_DATA',
-                    payload: allData
-                });
-                alert("Sync Successful! Data sent.");
-            } catch (err) {
-                alert("Export failed.");
-            }
-        });
-
-        conn.on('error', () => alert("Connection failed. Try again."));
     }
 };
