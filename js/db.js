@@ -6,17 +6,17 @@ const STORE_NOTEBOOKS = 'notebooks';
 
 // Conținutul tutorialului
 const TUTORIAL_CONTENT = `
-# Bine ai venit în TraduCipri! 🚀
+# Welcome to TraduCipri! 🚀
 
-Acesta este primul tău caiet inteligent. Aici poți vedea cum funcționează totul.
+This is your first smart notebook. Here you can see how everything works.
 
-## Cum să folosești aplicația:
-1. **Înregistrare:** Apasă pe microfonul de jos. Aplicația va asculta (în portugheză) și va scrie automat aici.
-2. **Editare:** Poți șterge sau modifica textul oricând, chiar în timp ce AI-ul scrie.
-3. **Desen:** Apasă pe iconița "Stilou" pentru a desena scheme sau a sublinia idei direct peste text.
-4. **Offline:** Odată instalată, aplicația merge perfect și fără internet.
+## How to use the app:
+1. **Recording:** Tap the microphone at the bottom. The app will listen (in Portuguese) and automatically write it down here.
+2. **Editing:** You can delete or edit the text anytime, even while the AI is typing.
+3. **Drawing:** Hit the "Pen" icon to draw diagrams or highlight ideas right over the text.
+4. **Offline:** Once installed, the app works flawlessly without an internet connection.
 
-Spor la învățat!
+Happy learning!
 `;
 
 export const dbPromise = openDB(DB_NAME, 1, {
@@ -27,7 +27,7 @@ export const dbPromise = openDB(DB_NAME, 1, {
             
             // Seed Data (Tutorial)
             store.add({
-                title: 'Ghid de Utilizare',
+                title: 'Usage guide',
                 content: TUTORIAL_CONTENT,
                 createdAt: new Date(),
                 updatedAt: new Date(),

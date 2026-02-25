@@ -45,7 +45,7 @@ if (canvas) ctx = canvas.getContext('2d');
 async function init() {
     const isInstalled = localStorage.getItem('traduCipriInstalled');
     if (!isInstalled) {
-        alert("Trebuie să finalizezi configurarea mai întâi!");
+        alert("You have to complete the configuration first!");
         window.location.href = 'index.html';
         return;
     }
@@ -63,7 +63,7 @@ async function init() {
                     allowBase64: true, // Asta e CHEIA ca să nu dispară pozele la load!
                 }), 
                 Placeholder.configure({
-                    placeholder: 'Scrie, dictează sau pune o poză...',
+                    placeholder: 'Write, dictate or insert an image...',
                 }),
                 StarterKit.UndoRedo,
             ],
@@ -105,7 +105,7 @@ async function init() {
     currentNote = await db.get('notebooks', noteId);
 
     if (!currentNote) {
-        alert("Caietul nu există!");
+        alert("The notebook does not exist!");
         window.location.href = 'index.html';
         return;
     }
@@ -257,12 +257,13 @@ function insertTextSmart(text) {
     if (!editor) return;
     let cleanText = text.trim();
     if (cleanText.length === 0) return;
-
     const allText = editor.getText();
     const lastChars = allText.slice(-50).trim();
     if (lastChars.endsWith(cleanText)) return;
-
-    const htmlFragment = mdParser.render(cleanText);
+    let htmlFragment = mdParser.render(cleanText);
+    // Aici e magia, bro: radem <p>-urile si punem un space 
+    // ca sa curga textul chill, pe aceeasi linie
+    htmlFragment = htmlFragment.replace(/^<p>/, ' ').replace(/<\/p>\n?$/, ' ');
     editor.commands.insertContent(htmlFragment);
     editor.commands.scrollIntoView();
     triggerSave(false); 
@@ -317,7 +318,7 @@ if (canvas) {
 
 if (btnClear) {
     btnClear.onclick = () => {
-        if (confirm("Ștergi desenul?")) {
+        if (confirm("Delete drawing?")) {
             if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
             saveDrawing();
         }
@@ -396,14 +397,14 @@ function showStatus(state) {
     saveStatus.classList.add('visible');
     saveStatus.className = 'visible ' + state;
     
-    if (state === 'saving') saveStatus.innerText = "Se salvează...";
+    if (state === 'saving') saveStatus.innerText = "Saving...";
     if (state === 'saved') {
-        saveStatus.innerText = "Salvat ✔";
+        saveStatus.innerText = "Saved ✔";
         setTimeout(() => { 
             if(saveStatus) saveStatus.classList.remove('visible'); 
         }, 2000);
     }
-    if (state === 'error') saveStatus.innerText = "Eroare! ❌";
+    if (state === 'error') saveStatus.innerText = "Error! ❌";
 }
 
 // START
