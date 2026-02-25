@@ -4,7 +4,6 @@ import { openDB } from 'https://cdn.jsdelivr.net/npm/idb@7/+esm';
 const DB_NAME = 'TraduCipriDB';
 const STORE_NOTEBOOKS = 'notebooks';
 
-// Conținutul tutorialului
 const TUTORIAL_CONTENT = `
 # Welcome to TraduCipri! 🚀
 
@@ -12,7 +11,7 @@ This is your first smart notebook. Here you can see how everything works.
 
 ## How to use the app:
 1. **Recording:** Tap the microphone at the bottom. The app will listen (in Portuguese) and automatically write it down here.
-2. **Editing:** You can delete or edit the text anytime, even while the AI is typing.
+2. **Editing:** You can delete or edit the text anytime, even while the Smart Engine is typing.
 3. **Drawing:** Hit the "Pen" icon to draw diagrams or highlight ideas right over the text.
 4. **Offline:** Once installed, the app works flawlessly without an internet connection.
 
@@ -24,8 +23,7 @@ export const dbPromise = openDB(DB_NAME, 1, {
         if (!db.objectStoreNames.contains(STORE_NOTEBOOKS)) {
             const store = db.createObjectStore(STORE_NOTEBOOKS, { keyPath: 'id', autoIncrement: true });
             store.createIndex('updatedAt', 'updatedAt');
-            
-            // Seed Data (Tutorial)
+
             store.add({
                 title: 'Usage guide',
                 content: TUTORIAL_CONTENT,
@@ -56,40 +54,33 @@ export const NotebookManager = {
             content: '',
             createdAt: new Date(),
             updatedAt: new Date(),
-            theme: 'gray' // gray, blue, red
+            theme: 'gray'
         });
     },
 
     async add(notebookObject) {
-        // Folosit pentru duplicare
         const db = await dbPromise;
         return await db.add(STORE_NOTEBOOKS, notebookObject);
     },
-    
+
     async save(id, content) {
         const db = await dbPromise;
         const note = await db.get(STORE_NOTEBOOKS, id);
-        if(note) {
+        if (note) {
             note.content = content;
             note.updatedAt = new Date();
             await db.put(STORE_NOTEBOOKS, note);
         }
     },
 
-    // Asta lipsea!
     async delete(id) {
         const db = await dbPromise;
         await db.delete(STORE_NOTEBOOKS, id);
     },
 
-    // În obiectul NotebookManager din db.js adaugă metodele astea:
-
-    // ... restul funcțiilor (getAll, create, etc.) ...
-
-    // Exportă totul ca un JSON string
     async exportAllData() {
         const db = await dbPromise;
-        const notebooks = await db.getAllFromIndex(STORE_NOTEBOOKS, 'updatedAt');
+        const notebooks = await db.getAll(STORE_NOTEBOOKS);
         const userData = {
             name: localStorage.getItem('traduCipriName'),
             installed: localStorage.getItem('traduCipriInstalled'),
@@ -98,33 +89,24 @@ export const NotebookManager = {
         return JSON.stringify(userData);
     },
 
-    // Importă date dintr-un JSON
     async importData(jsonString) {
         try {
             const data = JSON.parse(jsonString);
-            
-            // 1. Restaurăm setările de user
-            if(data.name) localStorage.setItem('traduCipriName', data.name);
-            if(data.installed) localStorage.setItem('traduCipriInstalled', data.installed);
 
-            // 2. Restaurăm caietele
+            if (data.name) localStorage.setItem('traduCipriName', data.name);
+            if (data.installed) localStorage.setItem('traduCipriInstalled', data.installed);
+
             const db = await dbPromise;
             const tx = db.transaction(STORE_NOTEBOOKS, 'readwrite');
             const store = tx.objectStore(STORE_NOTEBOOKS);
 
-            // Le adăugăm pe toate (sau le suprascriem dacă există logica de ID, 
-            // dar pentru simplitate le adăugăm ca noi sau curățăm tot înainte)
-            
-            // Opțional: Ștergem tot ce e curent ca să nu se dubleze? 
+            // Opțional: Curățăm tot înainte de import ca să fie Mirror Sync
             // await store.clear(); 
-            
+
             for (const note of data.notebooks) {
-                // Ștergem ID-ul ca să nu facă conflict, DB-ul va genera ID-uri noi
-                // Sau păstrăm ID-ul dacă vrem exact aceeași stare
-                // delete note.id; 
-                await store.put(note); // put() face update dacă există ID, add() crăpă
+                await store.put(note);
             }
-            
+
             await tx.done;
             return true;
         } catch (e) {
@@ -133,3 +115,6 @@ export const NotebookManager = {
         }
     }
 };
+
+// EXPORT GLOBAL - Important pentru ca Sync-ul din index.js să poată vedea funcțiile astea
+window.NotebookManager = NotebookManager;

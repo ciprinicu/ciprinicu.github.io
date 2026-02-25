@@ -1,6 +1,6 @@
 /* --- 1. RESET & BASE (Infinite Scroll Fix) --- */
 :root {
-    --bg-main: #0f172a; 
+    --bg-main: #0f172a;
     --bg-secondary: #1e293b;
     --primary: #3b82f6;
     --primary-hover: #2563eb;
@@ -12,190 +12,470 @@
     --card-glass: rgba(30, 41, 59, 0.7);
 }
 
-html, body {
-    height: 100%; /* CRUCIAL PENTRU STICKY FOOTER */
+html,
+body {
+    height: 100%;
+    /* CRUCIAL PENTRU STICKY FOOTER */
     margin: 0;
-    
+
     background: var(--bg-main);
     background-image: radial-gradient(circle at top right, rgba(59, 130, 246, 0.1), transparent 40%),
-                      radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.1), transparent 40%);
+        radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.1), transparent 40%);
     background-attachment: fixed;
     color: var(--text-main);
     font-family: 'Inter', sans-serif;
-    
-    overflow-y: auto; 
+
+    overflow-y: auto;
 }
 
 #app-container {
     max-width: 1100px;
     margin: 0 auto;
-    padding: 30px 20px 100px 20px; /* Păstrăm padding-ul tău pentru FAB */
-    
+    padding: 30px 20px 100px 20px;
+    /* Păstrăm padding-ul tău pentru FAB */
+
     /* SCHEMA STICKY FOOTER START */
-    min-height: 100vh; /* Ocupă minim tot ecranul */
-    display: flex;     /* Activăm flexbox */
-    flex-direction: column; /* Elementele unul sub altul */
-    box-sizing: border-box; /* Ca să nu iasă din ecran din cauza padding-ului */
+    min-height: 100vh;
+    /* Ocupă minim tot ecranul */
+    display: flex;
+    /* Activăm flexbox */
+    flex-direction: column;
+    /* Elementele unul sub altul */
+    box-sizing: border-box;
+    /* Ca să nu iasă din ecran din cauza padding-ului */
     /* SCHEMA STICKY FOOTER END */
 
     animation: fadeInPage 0.6s ease-out;
 }
 
-@keyframes fadeInPage { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeInPage {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 
 /* --- 2. HEADER --- */
 .app-header {
-    display: flex; justify-content: space-between; align-items: center; margin-bottom: 50px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 50px;
 }
+
 #app-greeting {
-    font-size: 2.5rem; font-weight: 700; margin: 0;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0;
     background: linear-gradient(to right, #fff, #a5f3fc);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
-.app-subtitle { color: var(--text-muted); margin: 5px 0 0 0; font-size: 1rem; }
+
+.app-subtitle {
+    color: var(--text-muted);
+    margin: 5px 0 0 0;
+    font-size: 1rem;
+}
+
 .user-avatar {
-    font-size: 2rem; background: var(--bg-secondary);
-    width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;
-    border-radius: 50%; border: 2px solid rgba(255,255,255,0.1);
+    font-size: 2rem;
+    background: var(--bg-secondary);
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.1);
 }
 
 /* --- 3. DASHBOARD & CARDS --- */
 .section-title {
-    font-size: 1.25rem; font-weight: 600; margin-bottom: 25px;
-    display: flex; align-items: center; gap: 10px;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
+
 .section-title::before {
-    content: ''; display: block; width: 4px; height: 20px;
-    background: var(--primary); border-radius: 2px;
+    content: '';
+    display: block;
+    width: 4px;
+    height: 20px;
+    background: var(--primary);
+    border-radius: 2px;
 }
 
 .notebook-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 25px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 25px;
 }
 
 .notebook-card {
     background: var(--card-glass);
-    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 20px; padding: 25px; cursor: pointer;
-    transition: all 0.3s ease; position: relative; overflow: hidden;
-    display: flex; flex-direction: column; min-height: 200px;
+    border-radius: 20px;
+    padding: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 200px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+    /* OPTIMIZARE LAG */
+    will-change: transform;
 }
+
 .notebook-card::before {
-    content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 6px;
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 6px;
     background: var(--primary);
 }
-.notebook-card.theme-blue::before { background: var(--accent-blue); }
-.notebook-card.theme-green::before { background: var(--accent-green); }
 
-.notebook-card:hover { transform: translateY(-7px) scale(1.02); box-shadow: 0 20px 30px rgba(0,0,0,0.4); }
-.card-icon { font-size: 3.5rem; margin-bottom: auto; transition: transform 0.3s; }
-.notebook-card:hover .card-icon { transform: scale(1.1) rotate(-5deg); }
-.card-info h3 { margin: 0 0 10px 0; font-size: 1.15rem; font-weight: 600; }
-.card-info .date { font-size: 0.8rem; color: var(--text-muted); }
+.notebook-card.theme-blue::before {
+    background: var(--accent-blue);
+}
+
+.notebook-card.theme-green::before {
+    background: var(--accent-green);
+}
+
+.notebook-card:hover {
+    transform: translateY(-7px) scale(1.02);
+    box-shadow: 0 20px 30px rgba(0, 0, 0, 0.4);
+}
+
+.card-icon {
+    font-size: 3.5rem;
+    margin-bottom: auto;
+    transition: transform 0.3s;
+}
+
+.notebook-card:hover .card-icon {
+    transform: scale(1.1) rotate(-5deg);
+}
+
+.card-info h3 {
+    margin: 0 0 10px 0;
+    font-size: 1.15rem;
+    font-weight: 600;
+}
+
+.card-info .date {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
 
 /* Actiuni Card (Duplicate/Delete) */
 .card-actions {
-    position: absolute; top: 15px; right: 15px; display: flex; gap: 5px;
-    opacity: 0; transform: translateX(10px); transition: all 0.2s ease;
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    display: flex;
+    gap: 5px;
+    opacity: 0;
+    transform: translateX(10px);
+    transition: all 0.2s ease;
 }
-.notebook-card:hover .card-actions { opacity: 1; transform: translateX(0); }
+
+.notebook-card:hover .card-actions {
+    opacity: 1;
+    transform: translateX(0);
+}
+
 .action-btn {
-    background: rgba(0,0,0,0.6); color: #fff; border: none;
-    width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
-.btn-delete:hover { background: #ef4444; }
+
+.btn-delete:hover {
+    background: #ef4444;
+}
 
 /* --- 4. BACKUP SECTION --- */
 .settings-card {
-    background: var(--bg-secondary); border: 1px solid rgba(255,255,255,0.05);
-    border-radius: 20px; padding: 30px; margin-top: 50px;
+    background: var(--bg-secondary);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 30px;
+    margin-top: 50px;
 }
-.backup-actions { display: flex; gap: 15px; flex-wrap: wrap; }
+
+.backup-actions {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
 .secondary-btn {
-    background: rgba(255,255,255,0.08); color: var(--text-main);
-    border: 1px solid rgba(255,255,255,0.1); padding: 12px 24px;
-    border-radius: 12px; font-weight: 500; cursor: pointer; transition: 0.2s;
-    display: flex; align-items: center; gap: 10px; font-family: inherit;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-main);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: inherit;
 }
-.secondary-btn:hover { background: rgba(255,255,255,0.15); transform: translateY(-2px); }
+
+.secondary-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+}
 
 /* --- 5. FAB (Buton +) --- */
 .fab-btn {
-    position: fixed; bottom: 30px; right: 30px; width: 64px; height: 64px;
-    border-radius: 50%; background: var(--primary); color: white; border: none;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 15px 35px rgba(59, 130, 246, 0.4); cursor: pointer;
-    transition: all 0.3s; z-index: 100;
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 15px 35px rgba(59, 130, 246, 0.4);
+    cursor: pointer;
+    transition: all 0.3s;
+    z-index: 100;
 }
-.fab-btn:hover { transform: scale(1.1); background: var(--primary-hover); }
-.fab-btn:hover svg { transform: rotate(90deg); transition: 0.3s; }
+
+.fab-btn:hover {
+    transform: scale(1.1);
+    background: var(--primary-hover);
+}
+
+.fab-btn:hover svg {
+    transform: rotate(90deg);
+    transition: 0.3s;
+}
 
 
 
 /* --- 7. WIZARD --- */
 .wizard-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px);
-    display: flex; align-items: center; justify-content: center; z-index: 9999;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+
+    /* OPTIMIZARE LAG */
+    will-change: opacity;
 }
+
 .wizard-card {
-    background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255,255,255,0.1);
-    padding: 40px; border-radius: 24px; width: 90%; max-width: 450px;
-    text-align: center; color: white; box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 40px;
+    border-radius: 24px;
+    width: 90%;
+    max-width: 450px;
+    text-align: center;
+    color: white;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
 }
-.wizard-step { display: none; animation: fadeIn 0.5s ease; }
-.wizard-step.active { display: block; }
-.wizard-icon { font-size: 3rem; margin-bottom: 20px; }
+
+.wizard-step {
+    display: none;
+    animation: fadeIn 0.5s ease;
+}
+
+.wizard-step.active {
+    display: block;
+}
+
+.wizard-icon {
+    font-size: 3rem;
+    margin-bottom: 20px;
+}
+
 .glass-input {
-    width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
-    color: white; padding: 15px; border-radius: 12px; font-size: 1.1rem;
-    text-align: center; outline: none; box-sizing: border-box;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 15px;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    text-align: center;
+    outline: none;
+    box-sizing: border-box;
 }
-.glass-input:focus { border-color: var(--primary); }
+
+.glass-input:focus {
+    border-color: var(--primary);
+}
+
 .primary-btn {
-    background: var(--primary); color: white; border: none; padding: 12px 24px;
-    border-radius: 12px; font-weight: 600; cursor: pointer; font-family: inherit;
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
     transition: 0.2s;
 }
-.primary-btn:hover { background: var(--primary-hover); transform: translateY(-2px); }
-.full-width { width: 100%; }
-.success-btn { background: var(--accent-green) !important; }
+
+.primary-btn:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+}
+
+.full-width {
+    width: 100%;
+}
+
+.success-btn {
+    background: var(--accent-green) !important;
+}
 
 /* --- 8. DOWNLOAD LIST (Matrix Style) --- */
 .download-container {
-    max-height: 250px; overflow-y: auto; background: rgba(0,0,0,0.3);
-    border-radius: 12px; padding: 15px; text-align: left; margin-top: 20px;
-    border: 1px solid rgba(255,255,255,0.05);
+    max-height: 250px;
+    overflow-y: auto;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    padding: 15px;
+    text-align: left;
+    margin-top: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
-.file-row { margin-bottom: 12px; font-size: 0.85rem; }
-.file-info { display: flex; justify-content: space-between; margin-bottom: 5px; color: #cbd5e1; }
-.file-track { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
-.file-bar { height: 100%; width: 0%; background: var(--primary); transition: width 0.2s; }
-.file-bar.done { background: var(--accent-green); }
+
+.file-row {
+    margin-bottom: 12px;
+    font-size: 0.85rem;
+}
+
+.file-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    color: #cbd5e1;
+}
+
+.file-track {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.file-bar {
+    height: 100%;
+    width: 0%;
+    background: var(--primary);
+    transition: width 0.2s;
+}
+
+.file-bar.done {
+    background: var(--accent-green);
+}
 
 /* --- 9. MODAL --- */
 .modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.7); backdrop-filter: blur(5px);
-    display: flex; align-items: center; justify-content: center; z-index: 2000;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
 }
+
 .modal-card {
-    background: #1e293b; padding: 30px; border-radius: 20px; width: 90%; max-width: 400px;
-    border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    background: #1e293b;
+    padding: 30px;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 400px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
 }
+
 .ghost-input {
-    width: 100%; background: transparent; border: none;
-    border-bottom: 2px solid var(--primary); color: white;
-    font-size: 1.2rem; padding: 10px 0; outline: none; margin-bottom: 30px;
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid var(--primary);
+    color: white;
+    font-size: 1.2rem;
+    padding: 10px 0;
+    outline: none;
+    margin-bottom: 30px;
 }
-.modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
-.btn-cancel { background: transparent; color: #94a3b8; border: none; padding: 10px 20px; cursor: pointer; }
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.btn-cancel {
+    background: transparent;
+    color: #94a3b8;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+}
 
 /* Animație generală */
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 
 
 /* AI GRIJA LA ASTA */
@@ -203,17 +483,25 @@ html, body {
 /* --- APP FEEL: FĂRĂ SELECTARE --- */
 
 /* Aplicăm asta pe elementele de interfață din Dashboard */
-body, 
-.notebook-card, 
-.sheet-content, 
+body,
+.notebook-card,
+.sheet-content,
 .sheet-btn,
 button,
-h1, h2, h3, span, p {
+h1,
+h2,
+h3,
+span,
+p {
     /* 1. Blochează selectarea textului (nu se mai albăstrește) */
-    -webkit-user-select: none; /* Safari / Chrome */
-    -moz-user-select: none;    /* Firefox */
-    -ms-user-select: none;     /* Edge */
-    user-select: none;         /* Standard */
+    -webkit-user-select: none;
+    /* Safari / Chrome */
+    -moz-user-select: none;
+    /* Firefox */
+    -ms-user-select: none;
+    /* Edge */
+    user-select: none;
+    /* Standard */
 
     /* 2. Blochează meniul de sistem la Long Press pe iOS (lupa aia enervantă) */
     -webkit-touch-callout: none;
@@ -224,8 +512,8 @@ h1, h2, h3, span, p {
 
 /* --- EXCEPȚII IMPORTANTE --- */
 /* Trebuie NEAPĂRAT să lăsăm userul să scrie în input-uri și textarea! */
-input, 
-textarea, 
+input,
+textarea,
 [contenteditable="true"] {
     -webkit-user-select: text !important;
     -moz-user-select: text !important;
@@ -247,27 +535,32 @@ textarea,
 
 /* Elementul <main> va ocupa tot spațiul liber și va împinge footer-ul jos */
 main {
-    flex: 1; 
-    width: 100%; /* Siguranță să nu se strângă */
+    flex: 1;
+    width: 100%;
+    /* Siguranță să nu se strângă */
 }
 
 /* Stilul pentru Footer-ul cu versiunea */
 .app-footer {
     text-align: center;
-    padding-top: 20px; /* Puțin spațiu deasupra */
-    margin-top: auto;  /* Siguranță extra */
+    padding-top: 20px;
+    /* Puțin spațiu deasupra */
+    margin-top: auto;
+    /* Siguranță extra */
     opacity: 0.6;
     transition: opacity 0.3s;
 }
 
 .app-footer:hover {
-    opacity: 1; /* Se aprinde când pui mouse-ul */
+    opacity: 1;
+    /* Se aprinde când pui mouse-ul */
 }
 
 .app-footer p {
     color: var(--text-muted);
     font-size: 0.85rem;
-    font-family: monospace; /* Să arate tehnic */
+    font-family: monospace;
+    /* Să arate tehnic */
     margin: 0;
 }
 
@@ -275,7 +568,8 @@ main {
 #save-status {
     position: fixed;
     top: 2%;
-    right: 50%; /* Lângă avatar/meniu */
+    right: 50%;
+    /* Lângă avatar/meniu */
     font-size: 0.8rem;
     font-weight: 600;
     color: var(--text-muted);
@@ -309,116 +603,134 @@ main {
     }
 
     /* --- BOTTOM SHEET (MENIU MOBIL) --- */
-.sheet-overlay {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0, 0, 0, 0.6); /* Întuneric în spate */
-    backdrop-filter: blur(3px);
-    z-index: 9999;
-    
-    /* Ascuns default */
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-    
-    /* Flex ca să aliniem meniul jos */
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-}
+    .sheet-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        /* Întuneric în spate */
+        backdrop-filter: blur(3px);
+        z-index: 9999;
 
-/* Când e activ */
-.sheet-overlay.active {
-    opacity: 1;
-    pointer-events: auto;
-}
+        /* Ascuns default */
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
 
-.sheet-content {
-    background: #1e293b; /* Culoarea de fundal (Dark Blue) */
-    width: 100%;
-    max-width: 500px; /* Să nu fie imens pe tablete */
-    border-radius: 20px 20px 0 0; /* Rotunjit sus */
-    padding: 20px;
-    padding-bottom: 40px; /* Mai mult loc jos pt iPhone */
-    
-    transform: translateY(100%); /* Ascuns sub ecran */
-    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-    box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
-    border-top: 1px solid rgba(255,255,255,0.1);
-}
+        /* Flex ca să aliniem meniul jos */
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+    }
 
-/* Când overlay-ul e activ, ridicăm meniul */
-.sheet-overlay.active .sheet-content {
-    transform: translateY(0);
-}
+    /* Când e activ */
+    .sheet-overlay.active {
+        opacity: 1;
+        pointer-events: auto;
+    }
 
-/* Linia aia mică de design (Handle) */
-.sheet-handle {
-    width: 40px;
-    height: 4px;
-    background: rgba(255,255,255,0.2);
-    border-radius: 2px;
-    margin: 0 auto 20px auto;
-}
+    .sheet-content {
+        background: #1e293b;
+        /* Culoarea de fundal (Dark Blue) */
+        width: 100%;
+        max-width: 500px;
+        /* Să nu fie imens pe tablete */
+        border-radius: 20px 20px 0 0;
+        /* Rotunjit sus */
+        padding: 20px;
+        padding-bottom: 40px;
+        /* Mai mult loc jos pt iPhone */
 
-.sheet-content h3 {
-    text-align: center;
-    margin-bottom: 20px;
-    color: rgba(255,255,255,0.7);
-    font-size: 1rem;
-}
+        transform: translateY(100%);
+        /* Ascuns sub ecran */
+        transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.5);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
 
-/* Butoanele din meniu */
-.sheet-btn {
-    width: 100%;
-    padding: 15px;
-    margin-bottom: 10px;
-    border: none;
-    background: rgba(255,255,255,0.05);
-    color: white;
-    font-size: 1.1rem;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    cursor: pointer;
-    transition: background 0.2s;
-}
+        /* OPTIMIZARE LAG */
+        will-change: transform;
+    }
 
-.sheet-btn:active {
-    background: rgba(255,255,255,0.15);
-    transform: scale(0.98);
-}
+    /* Când overlay-ul e activ, ridicăm meniul */
+    .sheet-overlay.active .sheet-content {
+        transform: translateY(0);
+    }
 
-.btn-danger {
-    background: rgba(239, 68, 68, 0.15);
-    color: #ef4444;
-}
+    /* Linia aia mică de design (Handle) */
+    .sheet-handle {
+        width: 40px;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 2px;
+        margin: 0 auto 20px auto;
+    }
 
-.btn-cancel {
-    margin-top: 10px;
-    background: transparent;
-    color: rgba(255,255,255,0.5);
-}
-    
+    .sheet-content h3 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 1rem;
+    }
+
+    /* Butoanele din meniu */
+    .sheet-btn {
+        width: 100%;
+        padding: 15px;
+        margin-bottom: 10px;
+        border: none;
+        background: rgba(255, 255, 255, 0.05);
+        color: white;
+        font-size: 1.1rem;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .sheet-btn:active {
+        background: rgba(255, 255, 255, 0.15);
+        transform: scale(0.98);
+    }
+
+    .btn-danger {
+        background: rgba(239, 68, 68, 0.15);
+        color: #ef4444;
+    }
+
+    .btn-cancel {
+        margin-top: 10px;
+        background: transparent;
+        color: rgba(255, 255, 255, 0.5);
+    }
+
     /* 1. Containerul Grilă - REPARAT TOTAL */
     .notebook-grid {
         display: grid !important;
         /* Două coloane egale */
-        grid-template-columns: 1fr 1fr !important; 
-        
+        grid-template-columns: 1fr 1fr !important;
+
         /* SPAȚIERE GENEROASĂ */
-        gap: 20px !important; /* Spațiu mare între ele */
-        row-gap: 20px !important; /* Spațiu și pe verticală */
-        
+        gap: 20px !important;
+        /* Spațiu mare între ele */
+        row-gap: 20px !important;
+        /* Spațiu și pe verticală */
+
         /* ALINIERE & CENTRARE */
-        padding: 0 20px !important; /* Margini egale stânga-dreapta față de ecran */
+        padding: 0 20px !important;
+        /* Margini egale stânga-dreapta față de ecran */
         width: 100% !important;
-        margin: 0 auto !important; /* Centrează blocul în pagină */
-        box-sizing: border-box !important; /* CRUCIAL: Ca să nu iasă din ecran */
-        
-        justify-content: center !important; /* Siguranță extra pentru centrare */
+        margin: 0 auto !important;
+        /* Centrează blocul în pagină */
+        box-sizing: border-box !important;
+        /* CRUCIAL: Ca să nu iasă din ecran */
+
+        justify-content: center !important;
+        /* Siguranță extra pentru centrare */
     }
 
     /* 2. Cardul - Pătrat și curat */
@@ -427,22 +739,25 @@ main {
         flex-direction: column !important;
         align-items: center !important;
         justify-content: space-between !important;
-        
+
         /* SCOS WIDTH FIX - Lăsăm grila să decidă lățimea */
-        width: auto !important; 
-        min-height: 150px !important; /* Îl facem puțin mai înalt să respire */
-        
-        padding: 20px 10px !important; /* Padding intern mai mare */
+        width: auto !important;
+        min-height: 150px !important;
+        /* Îl facem puțin mai înalt să respire */
+
+        padding: 20px 10px !important;
+        /* Padding intern mai mare */
         border-radius: 16px !important;
         background: #1e293b !important;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important; /* Umbră mai fină */
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2) !important;
+        /* Umbră mai fină */
         position: relative !important;
     }
 
     /* 1. DEFAULT: Butoanele sunt ASCUNSE complet */
     .notebook-card .card-actions {
-        display: none !important; 
-        
+        display: none !important;
+
         /* Păstrăm stilul Gamepad pentru când apar */
         width: 100% !important;
         top: 10px !important;
@@ -450,7 +765,8 @@ main {
         right: 0 !important;
         justify-content: space-between !important;
         padding: 0 10px !important;
-        pointer-events: none !important; /* Ghost mode pentru container */
+        pointer-events: none !important;
+        /* Ghost mode pentru container */
         z-index: 10 !important;
     }
 
@@ -459,30 +775,45 @@ main {
         display: flex !important;
         animation: popInAction 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-    
+
     /* Animație șmecheră de apariție (Bounce) */
     @keyframes popInAction {
-        from { opacity: 0; transform: scale(0.8); }
-        to { opacity: 1; transform: scale(1); }
+        from {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
     }
 
     /* 3. Când e activ, întunecăm puțin cardul ca să iasă butoanele în evidență */
     .notebook-card.mobile-edit {
         background: rgba(30, 41, 59, 0.95) !important;
         border-color: var(--primary) !important;
-        transform: scale(0.98) !important; /* Se micșorează puțin ca efect de presiune */
+        transform: scale(0.98) !important;
+        /* Se micșorează puțin ca efect de presiune */
+    }
+
+    /* SCOATEM TRANSFORM PE HOVER LA MOBIL PT LAG */
+    .notebook-card:hover {
+        transform: none !important;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2) !important;
     }
 
     /* 3. Titlul - Centrat frumos */
     .notebook-card h3 {
         width: 100% !important;
         text-align: center !important;
-        margin: 15px 0 !important; /* Mai mult spațiu sus-jos la text */
-        
-        white-space: normal !important; 
+        margin: 15px 0 !important;
+        /* Mai mult spațiu sus-jos la text */
+
+        white-space: normal !important;
         line-height: 1.4 !important;
         font-size: 1rem !important;
-        
+
         display: -webkit-box !important;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
@@ -491,16 +822,17 @@ main {
 
     .action-btn {
         pointer-events: auto !important;
-        
+
         /* Le facem puțin mai mari pentru degete */
         width: 42px !important;
         height: 42px !important;
-        background: rgba(15, 23, 42, 0.7) !important; /* Mai închis, să se vadă */
-        border: 1px solid rgba(255,255,255,0.1) !important;
+        background: rgba(15, 23, 42, 0.7) !important;
+        /* Mai închis, să se vadă */
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
     }
-    
+
     /* Facem iconița din buton puțin mai mare */
-    .action-btn svg, 
+    .action-btn svg,
     .action-btn i {
         font-size: 1.2rem !important;
     }
@@ -516,14 +848,103 @@ main {
     }
 
     /* 5. Iconița - Dacă există, o facem să se vadă bine */
-    .notebook-card .notebook-icon { 
+    .notebook-card .notebook-icon {
         font-size: 2.2rem !important;
         margin-bottom: 5px !important;
     }
-    
+
     /* Ascundem restul */
-    .notebook-card p, 
+    .notebook-card p,
     .notebook-card .date {
-        display: none !important; 
+        display: none !important;
+    }
+}
+
+/* --- SYNC SECTION STYLES --- */
+.sync-container {
+    margin-top: 30px;
+    padding-top: 25px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sync-header {
+    margin-bottom: 20px;
+}
+
+.sync-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.sync-header p {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin: 5px 0 0 0;
+}
+
+.sync-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.sync-box {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.sync-box .label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+}
+
+#my-peer-id {
+    margin: 0;
+    color: var(--primary);
+    letter-spacing: 4px;
+    font-family: monospace;
+}
+
+#qr-container {
+    background: white;
+    padding: 10px;
+    border-radius: 12px;
+    transition: transform 0.3s ease;
+}
+
+#qr-container:hover {
+    transform: scale(1.05);
+}
+
+.sync-buttons {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+.sync-buttons button {
+    flex: 1;
+    padding: 12px !important;
+    font-size: 0.9rem !important;
+}
+
+#qr-reader {
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+/* Mobile Tweaks */
+@media (max-width: 480px) {
+    .sync-grid {
+        grid-template-columns: 1fr;
     }
 }

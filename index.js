@@ -1,91 +1,134 @@
-// wizard.js
-
-// 1. Verificăm dacă userul a mai fost aici
+// index.js
+import { SyncManager } from './js/sync.js';
+// 1. INITIAL CHECK: Check if the user has completed the setup
 window.addEventListener('DOMContentLoaded', () => {
+    console.log("loaded")
     const userName = localStorage.getItem('traduCipriName');
     const isInstalled = localStorage.getItem('traduCipriInstalled');
+    const appContainer = document.getElementById('app-container');
+    const wizardOverlay = document.getElementById('welcome-wizard');
 
     if (userName && isInstalled) {
-        // Dacă e deja configurat, ascundem wizard-ul și afișăm salutul în App
-        document.getElementById('welcome-wizard').style.display = 'none';
+        if (wizardOverlay) wizardOverlay.style.display = 'none';
+        if (appContainer) appContainer.style.display = 'block';
         showDailyGreeting(userName);
     } else {
-        // Dacă e prima dată, arătăm wizard-ul
-        document.getElementById('welcome-wizard').style.display = 'flex';
+        if (wizardOverlay) wizardOverlay.style.display = 'flex';
     }
+
+    initSettingsLogic();
 });
 
-// Navigare între pași
-function nextStep(stepNumber) {
-    // Ascundem tot
-    document.querySelectorAll('.wizard-step').forEach(el => el.classList.remove('active'));
-    // Arătăm pasul curent
-    document.getElementById(`step-${stepNumber}`).classList.add('active');
-}
+// --- WIZARD NAVIGATION ---
 
-// Salvare nume și start instalare
-function saveNameAndStart() {
+window.nextStep = (stepNumber) => {
+    document.querySelectorAll('.wizard-step').forEach(el => el.classList.remove('active'));
+    document.getElementById(`step-${stepNumber}`).classList.add('active');
+};
+
+document.getElementById('btn-step-1')?.addEventListener('click', () => nextStep(2));
+
+document.getElementById('btn-step-2')?.addEventListener('click', () => {
     const nameInput = document.getElementById('user-name-input');
     let name = nameInput.value.trim();
-    
-    if (!name) name = "Studentule"; // Fallback dacă nu scrie nimic
-    
+    if (!name) name = "Student";
     localStorage.setItem('traduCipriName', name);
-    
-    // Trecem la pasul 3 (Instalare)
     nextStep(3);
-    
-    // Aici declanșăm funcția de download din transcriber.js
-    // startAIInstallation() este funcția pe care am scris-o în răspunsul anterior
-    // Trebuie să o adaptezi să updateze bara din #step-3
-    triggerAIInstall(); 
-}
+    triggerEngineInstall();
+});
 
-// Funcție simulată pentru demo (o înlocuiești cu cea reală de pipeline)
-function triggerAIInstall() {
+document.getElementById('btn-step-4')?.addEventListener('click', () => {
+    closeWizard();
+});
+
+function triggerEngineInstall() {
     let progress = 0;
+    const statusText = document.getElementById('install-status');
     const interval = setInterval(() => {
         progress += 5;
-        document.getElementById('progress-fill').style.width = `${progress}%`;
-        document.getElementById('percent-text').innerText = `${progress}%`;
-        
-        if(progress >= 100) {
+        if (statusText) statusText.innerText = `Loading Processing Engine: ${progress}%`;
+        if (progress >= 100) {
             clearInterval(interval);
             localStorage.setItem('traduCipriInstalled', 'true');
-            setTimeout(() => nextStep(4), 500); // Mergem la final
+            setTimeout(() => nextStep(4), 500);
         }
-    }, 100); // Asta e doar vizual, în realitate se leagă de download
+    }, 100);
 }
 
 function closeWizard() {
     const overlay = document.getElementById('welcome-wizard');
-    overlay.style.opacity = '0';
-    overlay.style.transition = 'opacity 0.5s';
-    setTimeout(() => {
-        overlay.style.display = 'none';
-        // Afișăm salutul imediat după ce intră
-        const name = localStorage.getItem('traduCipriName');
-        showDailyGreeting(name);
-    }, 500);
+    const appContainer = document.getElementById('app-container');
+    if (overlay) {
+        overlay.style.opacity = '0';
+        overlay.style.transition = 'opacity 0.5s ease';
+        setTimeout(() => {
+            overlay.style.display = 'none';
+            if (appContainer) appContainer.style.display = 'block';
+            const name = localStorage.getItem('traduCipriName');
+            showDailyGreeting(name);
+        }, 500);
+    }
 }
 
-// --- SISTEMUL DE SALUT (Greeting System) ---
-// Asta o pui în main.js să ruleze undeva în UI-ul principal (header)
+// --- SETTINGS & PEERJS SYNC LOGIC ---
+
+function initSettingsLogic() {
+    console.log("initsettings")
+    const settingsModal = document.getElementById('settings-modal');
+    const btnOpenSettings = document.getElementById('btn-open-settings');
+    const btnCloseSettings = document.getElementById('btn-close-settings');
+
+    const btnScan = document.getElementById('btn-sync-scan');
+
+    if (btnScan) {
+        btnScan.onclick = () => {
+            SyncManager.startScanner();
+        };
+    }
+
+    if (btnOpenSettings && settingsModal) {
+        console.log("buttons exist")
+        btnOpenSettings.onclick = () => {
+            console.log("settings")
+            settingsModal.style.display = 'flex';
+            SyncManager.init(); // Pornește Sync-ul și face QR-ul
+        };
+    }
+
+    if (btnCloseSettings && settingsModal) {
+        btnCloseSettings.onclick = () => settingsModal.style.display = 'none';
+        SyncManager.stopScanner();
+    }
+
+    window.addEventListener('click', (e) => {
+        if (e.target == settingsModal) settingsModal.style.display = 'none';
+        SyncManager.stopScanner();
+    });
+
+    // Butonul de conectare manuală
+    document.getElementById('btn-sync-connect')?.addEventListener('click', () => {
+        const targetId = document.getElementById('sync-peer-input').value;
+        if (targetId.length === 6) {
+            SyncManager.connect(targetId);
+        } else {
+            alert("Please enter a valid 6-digit code.");
+        }
+    });
+}
+
+// --- GREETING SYSTEM ---
 
 function showDailyGreeting(name) {
     const hour = new Date().getHours();
-    let greeting = "Salut";
+    let greeting = "Hello";
+    if (hour >= 5 && hour < 12) greeting = "Good morning";
+    else if (hour >= 12 && hour < 18) greeting = "Good afternoon";
+    else if (hour >= 18 && hour < 22) greeting = "Good evening";
+    else greeting = "Happy late-night study session";
 
-    if (hour >= 5 && hour < 12) greeting = "Bună dimineața";
-    else if (hour >= 12 && hour < 18) greeting = "Salutare";
-    else if (hour >= 18 && hour < 22) greeting = "Bună seara";
-    else greeting = "Spor la învățat noaptea";
-
-    // Găsește un element în pagina principală unde să pui asta
     const greetingElement = document.getElementById('app-greeting');
     if (greetingElement) {
         greetingElement.innerText = `${greeting}, ${name}! 👋`;
-        // Putem adăuga o animație css de fade-in pe text
-        greetingElement.style.animation = "fadeIn 1s ease";
+        greetingElement.style.animation = "fadeInPage 1s ease";
     }
 }
