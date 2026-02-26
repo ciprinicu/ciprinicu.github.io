@@ -1,5 +1,6 @@
 // index.js
 import { SyncManager } from './js/sync.js';
+
 // 1. INITIAL CHECK: Check if the user has completed the setup
 window.addEventListener('DOMContentLoaded', () => {
     console.log("loaded")
@@ -77,8 +78,24 @@ function initSettingsLogic() {
     const settingsModal = document.getElementById('settings-modal');
     const btnOpenSettings = document.getElementById('btn-open-settings');
     const btnCloseSettings = document.getElementById('btn-close-settings');
-
     const btnScan = document.getElementById('btn-sync-scan');
+    const btnConnect = document.getElementById('btn-sync-connect');
+
+    if (btnOpenSettings && settingsModal) {
+        console.log("buttons exist")
+        btnOpenSettings.onclick = () => {
+            console.log("opening settings and initializing sync...");
+            settingsModal.style.display = 'flex';
+            SyncManager.init(); // Pornește Sync-ul, face QR-ul și Fingerprint-ul
+        };
+    }
+
+    if (btnCloseSettings && settingsModal) {
+        btnCloseSettings.onclick = () => {
+            settingsModal.style.display = 'none';
+            SyncManager.stopScanner();
+        };
+    }
 
     if (btnScan) {
         btnScan.onclick = () => {
@@ -86,32 +103,25 @@ function initSettingsLogic() {
         };
     }
 
-    if (btnOpenSettings && settingsModal) {
-        console.log("buttons exist")
-        btnOpenSettings.onclick = () => {
-            console.log("settings")
-            settingsModal.style.display = 'flex';
-            SyncManager.init(); // Pornește Sync-ul și face QR-ul
+    // Butonul de conectare manuală - legat direct
+    if (btnConnect) {
+        btnConnect.onclick = () => {
+            const inputField = document.getElementById('sync-peer-input');
+            const targetId = inputField.value ? inputField.value.trim() : "";
+
+            if (targetId.length === 6) {
+                console.log("Manual connect triggered to:", targetId);
+                SyncManager.connect(targetId);
+            } else {
+                alert("Please enter a valid 6-digit code.");
+            }
         };
     }
 
-    if (btnCloseSettings && settingsModal) {
-        btnCloseSettings.onclick = () => settingsModal.style.display = 'none';
-        SyncManager.stopScanner();
-    }
-
     window.addEventListener('click', (e) => {
-        if (e.target == settingsModal) settingsModal.style.display = 'none';
-        SyncManager.stopScanner();
-    });
-
-    // Butonul de conectare manuală
-    document.getElementById('btn-sync-connect')?.addEventListener('click', () => {
-        const targetId = document.getElementById('sync-peer-input').value;
-        if (targetId.length === 6) {
-            SyncManager.connect(targetId);
-        } else {
-            alert("Please enter a valid 6-digit code.");
+        if (e.target == settingsModal) {
+            settingsModal.style.display = 'none';
+            SyncManager.stopScanner();
         }
     });
 }
