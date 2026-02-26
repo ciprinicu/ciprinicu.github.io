@@ -94,7 +94,7 @@ export const SyncManager = {
 
         conn.on('data', async (data) => {
             if (data.type === 'SEND_DATA_BACK') {
-                const confirmSync = confirm("Am primit datele. Le importăm?");
+                const confirmSync = confirm("Data received. Proceed to import?");
                 if (confirmSync) {
                     const success = await window.NotebookManager.importData(data.payload);
                     if (success) location.reload();
@@ -103,7 +103,7 @@ export const SyncManager = {
         });
 
         conn.on('error', () => {
-            alert("Nu mă pot conecta. Verifică dacă laptopul are setările deschise.");
+            alert("Couldn't connect. Please be sure that the other device has Settings open.");
             if (btn) btn.innerText = "⚡ Quick Sync";
         });
     },
