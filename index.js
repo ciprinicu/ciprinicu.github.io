@@ -128,7 +128,7 @@ function initSettingsLogic() {
 
 // --- GREETING SYSTEM ---
 
-function showDailyGreeting(name) {
+function showDailyGreeting(namee) {
     const hour = new Date().getHours();
     let greeting = "Hello";
     if (hour >= 5 && hour < 12) greeting = "Good morning";
@@ -138,7 +138,7 @@ function showDailyGreeting(name) {
 
     const greetingElement = document.getElementById('app-greeting');
     if (greetingElement) {
-        greetingElement.innerText = `${greeting}, ${name}! 👋`;
+        greetingElement.innerText = `${greeting}, ${namee}! 👋`;
         greetingElement.style.animation = "fadeInPage 1s ease";
     }
 }
