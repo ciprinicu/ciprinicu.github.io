@@ -10,6 +10,15 @@ import MarkdownIt from 'https://esm.sh/markdown-it';
 
 // --- CONFIGURARE GLOBALĂ ---
 let editor = null;
+let audioContext, analyser, dataArray;
+let silenceStart = null;
+const SILENCE_THRESHOLD = 10; // Cât de liniște trebuie să fie (0-255)
+const SILENCE_DURATION = 5000; // 1.2 secunde de liniște = final de frază   
+
+let globalAudioContext = null;
+let globalStream = null;
+let animationId;
+
 // FIX 1: Activăm html: true ca să nu șteargă pozele dacă le trece prin parser din greșeală
 const mdParser = new MarkdownIt({ html: true });
 let saveTimeout = null;
@@ -23,6 +32,10 @@ const sheet = document.getElementById('scroll-container');
 const paperBg = document.getElementById('scroll-container');
 const btnDraw = document.getElementById('btn-draw-mode');
 const btnClear = document.getElementById('btn-clear-draw');
+
+// js/editor.js -> Sus, la secțiunea de Elemente DOM
+const btnSplit = document.getElementById('btn-toggle-split');
+const editorElement = document.getElementById('tiptap-editor');
 
 // Elemente DOM - Imagini
 const btnAddImg = document.getElementById('btn-add-img');
@@ -42,6 +55,59 @@ if (canvas) ctx = canvas.getContext('2d');
 
 // --- 1. INIȚIALIZARE APP ---
 
+import { Node, mergeAttributes } from 'https://esm.sh/@tiptap/core';
+
+const NoteBlock = Node.create({
+    name: 'noteBlock',
+    group: 'block',
+    content: 'block*', // Permite alte blocuri în interior (cum e textul)
+    defining: true,
+
+    parseHTML() {
+        return [{ tag: 'div.note-block' }]; // Recunoaște tag-ul în HTML
+    },
+
+    renderHTML({ HTMLAttributes }) {
+        return ['div', mergeAttributes(HTMLAttributes, { class: 'note-block' }), 0];
+    },
+});
+
+const SourcePt = Node.create({
+    name: 'sourcePt',
+    group: 'block',
+    content: 'inline*',
+    parseHTML() { return [{ tag: 'div.source-pt' }]; },
+    renderHTML({ HTMLAttributes }) {
+        return ['div', mergeAttributes(HTMLAttributes, { class: 'source-pt' }), 0];
+    },
+});
+
+const TargetEn = Node.create({
+    name: 'targetEn',
+    group: 'block',
+    content: 'inline*',
+    parseHTML() { return [{ tag: 'div.target-en' }]; },
+    renderHTML({ HTMLAttributes }) {
+        return ['div', mergeAttributes(HTMLAttributes, { class: 'target-en' }), 0];
+    },
+});
+
+function applyPtVisibility(isHidden) {
+    // 1. Aplicăm clasa pe editor ca să ascundem/arătăm PT
+    if (editorElement) {
+        if (isHidden) {
+            editorElement.classList.add('hide-pt');
+        } else {
+            editorElement.classList.remove('hide-pt');
+        }
+    }
+
+    // 2. Colorăm butonul (doar îi punem clasa .active)
+    if (btnSplit) {
+        btnSplit.classList.toggle('active', isHidden);
+    }
+}
+
 async function init() {
     const isInstalled = localStorage.getItem('traduCipriInstalled');
     if (!isInstalled) {
@@ -52,29 +118,44 @@ async function init() {
 
     // === SETUP TIPTAP EDITOR ===
     if (document.getElementById('tiptap-editor')) {
-        editor = new Editor({
-            element: document.getElementById('tiptap-editor'),
-            extensions: [
-                StarterKit,
-                // FIX 2: Configurare CORECTĂ pentru imagini
-                // Setările allowBase64 și inline trebuie să fie la nivelul de bază, nu în 'resize'
-                ImageExtension.configure({
-                    inline: true,      
-                    allowBase64: true, // Asta e CHEIA ca să nu dispară pozele la load!
-                }), 
-                Placeholder.configure({
-                    placeholder: 'Write, dictate or insert an image...',
-                }),
-                StarterKit.UndoRedo,
-            ],
-            content: '',
-            autofocus: true,
-            onUpdate: ({ editor }) => {
-                triggerSave(false); 
-                resizeCanvas(true);
-            },
-        });
-    }
+    editor = new Editor({
+        element: document.getElementById('tiptap-editor'),
+        extensions: [
+            StarterKit.configure({
+                heading: { levels: [1, 2, 3] },
+            }),
+            ImageExtension.configure({
+                inline: true,      
+                allowBase64: true, 
+            }), 
+            Placeholder.configure({
+                placeholder: 'Write, dictate or insert an image...',
+            }),
+            NoteBlock,
+            SourcePt,
+            TargetEn,
+            // 2. Add a simple extension to handle the Dual-Language blocks
+            // This prevents Tiptap from "cleaning" your note-blocks
+            StarterKit.UndoRedo,
+        ],
+        // 3. IMPORTANT: Tell Tiptap to leave our HTML alone during parsing
+        parseOptions: {
+            preserveWhitespace: 'full',
+        },
+        content: '',
+        autofocus: true,
+        onCreate({ editor }) {
+            // 1. La pornire, verificăm ce avem salvat
+            const isHidden = localStorage.getItem('traduCipri_hidePt') === 'true';
+            // Așteptăm un mic delay ca Tiptap să randeze DOM-ul
+            setTimeout(() => applyPtVisibility(isHidden), 100);
+        },
+        onUpdate: ({ editor }) => {
+            triggerSave(false); 
+            resizeCanvas(true);
+        },
+    });
+}
 
     // === SETUP AI (LOADING) ===
     if (btnMic) {
@@ -156,23 +237,15 @@ async function init() {
         }
     }
 
-    const btnSplit = document.getElementById('btn-toggle-split');
-    const editorElement = document.getElementById('tiptap-editor');
-
-    if (btnSplit) {
+    if (btnSplit && editorElement) {
         btnSplit.onclick = () => {
-            const isSplit = editorElement.classList.toggle('split-view-active');
-            btnSplit.classList.toggle('active', isSplit);
+            const isCurrentlyHidden = editorElement.classList.contains('hide-pt');
+            const newState = !isCurrentlyHidden;
+            console.log(isCurrentlyHidden, newState)
 
-            // Save preference
-            localStorage.setItem('traduCipri_splitMode', isSplit);
+            applyPtVisibility(newState);
+            localStorage.setItem('traduCipri_hidePt', newState);
         };
-
-        // Load saved preference
-        if (localStorage.getItem('traduCipri_splitMode') === 'true') {
-            editorElement.classList.add('split-view-active');
-            btnSplit.classList.add('active');
-        }
     }
 }
 
@@ -227,6 +300,22 @@ if (btnAddImg && imgInput) {
 
 // --- 3. LOGICA AUDIO ---
 
+function killMicrophone() {
+    if (globalStream) {
+        globalStream.getTracks().forEach(track => track.stop());
+        globalStream = null;
+    }
+
+    if (animationId) {
+        cancelAnimationFrame(animationId);
+    }
+
+    // We don't necessarily need to close it, just suspend it to save battery
+    if (globalAudioContext && globalAudioContext.state !== 'closed') {
+        globalAudioContext.suspend();
+    }
+}
+
 if (btnMic) {
     btnMic.onclick = async () => {
         if (btnMic.disabled) return;
@@ -235,32 +324,127 @@ if (btnMic) {
     };
 }
 
+let recorder;
+const loader = document.createElement('div');
+loader.id = 'processing-loader';
+document.body.appendChild(loader);  
+
+function monitorVoiceActivity(stream) {
+    // 1. REUSE the existing context from the transcriber
+    const audioContext = transcriber.getAudioContext();
+
+    // Resume context if it was suspended by the browser
+    if (audioContext.state === 'suspended') {
+        audioContext.resume();
+    }
+
+    const source = audioContext.createMediaStreamSource(stream);
+
+    // Use global variables for analyser/dataArray to avoid re-declaring them
+    analyser = audioContext.createAnalyser();
+    analyser.fftSize = 256;
+    source.connect(analyser);
+
+    const bufferLength = analyser.frequencyBinCount;
+    dataArray = new Uint8Array(bufferLength);
+
+    function check() {
+        // Exit loop if recording stopped
+        if (!isRecording) return;
+
+        animationId = requestAnimationFrame(check);
+        analyser.getByteFrequencyData(dataArray);
+
+        let sum = 0;
+        for (let i = 0; i < bufferLength; i++) sum += dataArray[i];
+        let average = sum / bufferLength;
+
+        // Visual feedback for your loading bar if you want it
+        const loader = document.getElementById('processing-loader');
+        if (loader && !loader.classList.contains('is-thinking')) {
+            loader.style.width = Math.min(average * 1.5, 100) + '%';
+        }
+
+        if (average < SILENCE_THRESHOLD) {
+            if (!silenceStart) silenceStart = Date.now();
+
+            if (Date.now() - silenceStart > SILENCE_DURATION) {
+                console.log("Pauză detectată, trimitem segmentul...");
+
+                // 2. Use window.recorder to avoid Scope/Reference errors
+                if (window.recorder && window.recorder.state === 'recording') {
+                    window.recorder.stop();
+                    silenceStart = null;
+                    // Note: We don't 'return' here, we let the loop die naturally 
+                    // when isRecording becomes false or the next segment starts.
+                }
+            }
+        } else {
+            silenceStart = null;
+        }
+    }
+    check();
+}
+
+var tempstream = null;
+
 async function startRecordingLoop() {
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        tempstream = stream;
         isRecording = true;
         btnMic.innerHTML = "⏹ Stop";
         btnMic.classList.add('rec-active');
 
         const recordSegment = () => {
             if (!isRecording) return;
-            const recorder = new MediaRecorder(stream);
+
+            // Start a new recorder for this segment
+            recorder = new MediaRecorder(stream);
+            window.recorder = recorder
             let chunks = [];
-            recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
+
+            recorder.ondataavailable = (e) => {
+                if (e.data.size > 0) chunks.push(e.data);
+            };
+
+            // Pornește monitorizarea „inteligentă”
+            monitorVoiceActivity(stream);
+
+            // Plasa de siguranță: dacă nu taci deloc, tăiem la 12 secunde
+            const safetyNet = setTimeout(() => {
+                if (recorder.state === 'recording') recorder.stop();
+            }, 8000);
+
             recorder.onstop = async () => {
+                // Immediately trigger the next segment BEFORE processing this one
+                // This ensures the "mic" is always captured by a recorder
+                if (isRecording) recordSegment();
+
                 const audioBlob = new Blob(chunks, { type: 'audio/webm' });
-                if (audioBlob.size > 0) {
-                    const text = await transcriber.transcribe(audioBlob);
-                    if (text && text.trim().length > 0) insertTextSmart(text);
+                chunks = []; // Clear local memory immediately
+
+                if (audioBlob.size > 1000) {
+                    // ACTIVĂM FEEDBACK-UL VIZUAL
+                    clearTimeout(safetyNet); // Oprim cronometrul de siguranță
+                    loader.classList.add('is-thinking');
+                    const result = await transcriber.transcribe(audioBlob);
+                    // DEZACTIVĂM CÂND E GATA
+                    loader.classList.remove('is-thinking');
+                    // CHECK THIS: result is now { pt: "...", en: "..." }
+                    if (result && result.pt) {
+                        insertTextSmart(result.pt, result.en);
+                    }
+                    //if (text && text.trim()) insertTextSmart(text);
                 }
             };
+
             recorder.start();
-            setTimeout(() => { if (recorder.state === 'recording') recorder.stop(); }, 5000);
         };
 
         recordSegment();
-        recordingInterval = setInterval(() => { if (isRecording) recordSegment(); }, 5010);
     } catch (err) {
+        console.error("Mic error:", err);
         alert("Microfon blocat!");
         stopRecordingLoop();
     }
@@ -270,67 +454,55 @@ function stopRecordingLoop() {
     isRecording = false;
     if (recordingInterval) { clearInterval(recordingInterval); recordingInterval = null; }
     if (btnMic) { btnMic.innerHTML = "🎙️ REC"; btnMic.classList.remove('rec-active'); }
+    if(tempstream !== globalStream) killMicrophone();
 }
 
-// --- UPDATED SMART INSERT WITH DUAL-LANGUAGE SUPPORT ---
+async function insertTextSmart(ptText, enText) {
+    if (!editor || !ptText) return;
 
-async function insertTextSmart(text) {
-    if (!editor) return;
-    let cleanText = text.trim();
-    if (cleanText.length === 0) return;
+    // 1. Clean up Whisper hallucinations like [Música] or [Gritos]
+    let cleanPt = ptText.replace(/\[.*?\]/g, '').trim();
+    let cleanEn = enText ? enText.replace(/\[.*?\]/g, '').trim() : "Translation unavailable";
 
-    // 1. Check for duplicates to prevent Whisper "stutter"
+    if (cleanPt.length < 2) return;
+
+    // 2. Avoid duplicates (Whisper stutter)
     const allText = editor.getText();
-    const lastChars = allText.slice(-100).trim();
-    if (lastChars.includes(cleanText)) return;
+    if (allText.slice(-100).includes(cleanPt)) return;
 
     showStatus('saving');
 
-    // 2. Start the translation process
-    // We create the block immediately with a placeholder for the English part
-    const translation = await translateToEnglish(cleanText);
+    // 3. Create the Tight HTML Block
+    // Note: We keep this on ONE LINE with no spaces between tags to stop Tiptap's <p> injection
+    const finalHtml = `<div class="note-block"><div class="source-pt">${cleanPt}</div><div class="target-en">${cleanEn}</div></div>`;
 
-    // 3. Construct the HTML Block
-    // This structure allows for Split-View on Desktop and Stacked-View on Mobile
-    const blockHtml = `
-        <div class="note-block">
-            <div class="source-pt">${cleanText}</div>
-            <div class="target-en">${translation}</div>
-        </div>
-        <p></p>
-    `;
-
-    // 4. Insert into Tiptap
-    // We use the chain() command to ensure the editor stays focused
+    // 4. Insert Everything in one chain
     editor.chain()
         .focus()
-        .insertContent(blockHtml)
-        .scrollIntoView()
+        .insertContent(finalHtml)
         .run();
+
+    // 5. Auto-scroll to bottom for mobile
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
 
     triggerSave(false);
 }
 
-// Helper function for the Translation logic
+
+//ignore this i will maybe add online
 async function translateToEnglish(text) {
-    // For now, this is a placeholder. 
-    // It returns the text with a prefix so you can test the UI layout.
-    return new Promise((resolve) => {
-        // Simulating a slight delay for the "live" feel
-        setTimeout(() => {
-            resolve("🇬🇧 " + text);
-        }, 300);
-    });
-}
+    try {
+        // Using MyMemory API (Free, no key needed for low volume)
+        const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=pt|en`);
+        const data = await response.json();
 
-async function deleteAllPortuguese() {
-    if (confirm("Delete all Portuguese source text to save space?")) {
-        // This targets the UI class to hide them instantly
-        document.body.classList.add('hide-pt');
-
-        // And we update the DB (as we discussed in the previous step)
-        const currentId = getCurrentNotebookId();
-        await window.NotebookManager.purgePortuguese(currentId);
+        if (data.responseData && data.responseData.translatedText) {
+            return data.responseData.translatedText;
+        }
+        return "🇬🇧 [Translation Error]";
+    } catch (err) {
+        console.error("Translation API failed:", err);
+        return "🇬🇧 " + text; // Fallback to original
     }
 }
 

@@ -7,8 +7,6 @@ class AudioTranscriber {
         this.isReady = false;
         this.installCallback = null;
         this.transcribeResolve = null;
-
-        // SINGLETON AUDIO CONTEXT: Create it once and reuse it
         this.audioContext = null;
 
         this.worker.onmessage = (e) => {
@@ -21,13 +19,16 @@ class AudioTranscriber {
                 if (this.installResolve) this.installResolve(true);
             }
             if (type === 'result') {
+                // ACUM: data este { pt: "...", en: "..." }
                 if (this.transcribeResolve) this.transcribeResolve(data);
                 this.transcribeResolve = null;
+            }
+            if (type === 'error') {
+                console.error("Worker Error:", data);
             }
         };
     }
 
-    // Helper: Initialize audio context only once
     getAudioContext() {
         if (!this.audioContext) {
             this.audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
@@ -36,9 +37,8 @@ class AudioTranscriber {
     }
 
     async transcribe(audioBlob) {
-        if (!this.isReady) return "";
+        if (!this.isReady) return null;
 
-        // MUCH FASTER: Reusing the same context
         const ctx = this.getAudioContext();
         const arrayBuffer = await audioBlob.arrayBuffer();
 
@@ -52,22 +52,19 @@ class AudioTranscriber {
                     type: 'transcribe',
                     data: {
                         audio: audioData,
-                        // Add these for speed optimization in the worker
-                        language: 'pt',
-                        task: 'transcribe',
-                        chunk_length_s: 30,
-                        stride_length_s: 5
+                        modelName: this.modelName // Trimitem și modelName pentru siguranță
                     }
                 });
             });
         } catch (e) {
             console.error("Audio decoding failed", e);
-            return "";
+            return null;
         }
     }
 
     install(progressCallback) {
         this.installCallback = (data) => {
+            // Monitorizăm progresul pentru ambele modele (Whisper + M2M100)
             if (data.status === 'progress') {
                 const percent = (data.loaded / data.total) * 100;
                 progressCallback(percent, data.file);
@@ -81,6 +78,7 @@ class AudioTranscriber {
 
     init() {
         if (!location.href.includes("editor")) return;
+        this.getAudioContext();
         return this.install(() => { });
     }
 }
