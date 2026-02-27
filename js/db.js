@@ -76,18 +76,26 @@ export const NotebookManager = {
         }
     },
 
-    // New helper to "Clean" the notes as you requested
+    // js/db.js
     async purgePortuguese(id) {
         const db = await dbPromise;
-        const note = await db.get(STORE_NOTEBOOKS, id);
-        if (note && Array.isArray(note.content)) {
-            // Map through blocks and remove the Portuguese source
-            note.content = note.content.map(block => ({
-                ...block,
-                p: null // Delete the source to save space
-            }));
+        const note = await db.get('notebooks', id);
+
+        // Check if content exists and is in the new block format
+        if (note && note.content.includes('note-block')) {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = note.content;
+
+            // Find all Portuguese source divs and empty them
+            const sources = tempDiv.querySelectorAll('.source-pt');
+            sources.forEach(src => {
+                src.innerText = ""; // Wipe the text
+                src.style.display = "none"; // Ensure it doesn't take up space
+            });
+
+            note.content = tempDiv.innerHTML;
             note.updatedAt = new Date();
-            await db.put(STORE_NOTEBOOKS, note);
+            await db.put('notebooks', note);
             return true;
         }
         return false;
