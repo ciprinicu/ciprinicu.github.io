@@ -35,26 +35,22 @@ async function loadModel(modelName) {
 }
 
 async function runTranscription(audioData) {
-    if (!pipe) {
-        self.postMessage({ type: 'error', data: "Model not loaded yet" });
-        return;
-    }
+    if (!pipe) return;
 
     try {
-        // Rulăm AI-ul cu setări ANTI-REPETIȚIE
         const output = await pipe(audioData, {
             chunk_length_s: 30,
             stride_length_s: 5,
             language: 'portuguese',
             task: 'transcribe',
-            
-            // --- MODIFICĂRI NOI ---
-            temperature: 0,        // Îl forțăm să fie cât mai exact (fără halucinații)
-            repetition_penalty: 1.2, // Dacă repetă cuvinte, primește "amendă" (le evită)
-            no_repeat_ngram_size: 3 // Nu are voie să repete secvențe de 3 cuvinte identice
+
+            // SPEED OPTIMIZATIONS
+            return_timestamps: false,
+            force_full_sequences: false,
+            num_beams: 1, // 1 beam is significantly faster than the default for base models
+            temperature: 0,
         });
 
-        // Trimitem textul înapoi
         self.postMessage({ type: 'result', data: output.text.trim() });
     } catch (err) {
         self.postMessage({ type: 'error', data: err.message });

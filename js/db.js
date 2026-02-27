@@ -63,14 +63,34 @@ export const NotebookManager = {
         return await db.add(STORE_NOTEBOOKS, notebookObject);
     },
 
+    // Updated save function in js/db.js
     async save(id, content) {
         const db = await dbPromise;
         const note = await db.get(STORE_NOTEBOOKS, id);
         if (note) {
+            // 'content' can now be an array of blocks: 
+            // [{ p: 'Portuguese', e: 'English', id: 123 }, ...]
             note.content = content;
             note.updatedAt = new Date();
             await db.put(STORE_NOTEBOOKS, note);
         }
+    },
+
+    // New helper to "Clean" the notes as you requested
+    async purgePortuguese(id) {
+        const db = await dbPromise;
+        const note = await db.get(STORE_NOTEBOOKS, id);
+        if (note && Array.isArray(note.content)) {
+            // Map through blocks and remove the Portuguese source
+            note.content = note.content.map(block => ({
+                ...block,
+                p: null // Delete the source to save space
+            }));
+            note.updatedAt = new Date();
+            await db.put(STORE_NOTEBOOKS, note);
+            return true;
+        }
+        return false;
     },
 
     async delete(id) {

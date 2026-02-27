@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ro">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Editor TraduCipri</title>
+    <title>TraduCipri Editor</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
@@ -121,15 +121,16 @@
 <div class="editor-layout">
     <header class="top-bar">
         <button class="icon-btn" onclick="history.back()">⬅</button>
-        <input type="text" id="doc-title" class="title-input" value="Se încarcă...">
+        <input type="text" id="doc-title" class="title-input" value="Loading...">
 
-        <span id="save-status">Salvat</span>
+        <span id="save-status">Saved</span>
         
         <div class="action-group">
+            <button id="btn-toggle-split" class="icon-btn" title="Toggle Split View">🌓</button>
             <input type="file" id="img-input" accept="image/*" style="display: none;">
-            <button id="btn-add-img" class="icon-btn" title="Poză">📷</button>
-            <button id="btn-draw-mode" class="icon-btn" title="Desenează">✏️</button>
-            <button id="btn-clear-draw" class="icon-btn" title="Șterge">🧹</button>
+            <button id="btn-add-img" class="icon-btn" title="Image">📷</button>
+            <button id="btn-draw-mode" class="icon-btn" title="Draw">✏️</button>
+            <button id="btn-clear-draw" class="icon-btn" title="Delete">🧹</button>
             <button id="btn-mic" class="icon-btn" style="width: auto; padding: 0 10px; font-size: 0.9rem; font-weight: 600;">🎙️</button>
         </div>
     </header>

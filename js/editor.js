@@ -155,6 +155,25 @@ async function init() {
             if (e.target.id === 'scroll-container' && editor) editor.commands.focus();
         }
     }
+
+    const btnSplit = document.getElementById('btn-toggle-split');
+    const editorElement = document.getElementById('tiptap-editor');
+
+    if (btnSplit) {
+        btnSplit.onclick = () => {
+            const isSplit = editorElement.classList.toggle('split-view-active');
+            btnSplit.classList.toggle('active', isSplit);
+
+            // Save preference
+            localStorage.setItem('traduCipri_splitMode', isSplit);
+        };
+
+        // Load saved preference
+        if (localStorage.getItem('traduCipri_splitMode') === 'true') {
+            editorElement.classList.add('split-view-active');
+            btnSplit.classList.add('active');
+        }
+    }
 }
 
 // --- 2. LOGICA PENTRU IMAGINI (SMART INSERT) ---
@@ -253,20 +272,66 @@ function stopRecordingLoop() {
     if (btnMic) { btnMic.innerHTML = "🎙️ REC"; btnMic.classList.remove('rec-active'); }
 }
 
-function insertTextSmart(text) {
+// --- UPDATED SMART INSERT WITH DUAL-LANGUAGE SUPPORT ---
+
+async function insertTextSmart(text) {
     if (!editor) return;
     let cleanText = text.trim();
     if (cleanText.length === 0) return;
+
+    // 1. Check for duplicates to prevent Whisper "stutter"
     const allText = editor.getText();
-    const lastChars = allText.slice(-50).trim();
-    if (lastChars.endsWith(cleanText)) return;
-    let htmlFragment = mdParser.render(cleanText);
-    // Aici e magia, bro: radem <p>-urile si punem un space 
-    // ca sa curga textul chill, pe aceeasi linie
-    htmlFragment = htmlFragment.replace(/^<p>/, ' ').replace(/<\/p>\n?$/, ' ');
-    editor.commands.insertContent(htmlFragment);
-    editor.commands.scrollIntoView();
-    triggerSave(false); 
+    const lastChars = allText.slice(-100).trim();
+    if (lastChars.includes(cleanText)) return;
+
+    showStatus('saving');
+
+    // 2. Start the translation process
+    // We create the block immediately with a placeholder for the English part
+    const translation = await translateToEnglish(cleanText);
+
+    // 3. Construct the HTML Block
+    // This structure allows for Split-View on Desktop and Stacked-View on Mobile
+    const blockHtml = `
+        <div class="note-block">
+            <div class="source-pt">${cleanText}</div>
+            <div class="target-en">${translation}</div>
+        </div>
+        <p></p>
+    `;
+
+    // 4. Insert into Tiptap
+    // We use the chain() command to ensure the editor stays focused
+    editor.chain()
+        .focus()
+        .insertContent(blockHtml)
+        .scrollIntoView()
+        .run();
+
+    triggerSave(false);
+}
+
+// Helper function for the Translation logic
+async function translateToEnglish(text) {
+    // For now, this is a placeholder. 
+    // It returns the text with a prefix so you can test the UI layout.
+    return new Promise((resolve) => {
+        // Simulating a slight delay for the "live" feel
+        setTimeout(() => {
+            resolve("🇬🇧 " + text);
+        }, 300);
+    });
+}
+
+async function deleteAllPortuguese() {
+    if (confirm("Delete all Portuguese source text to save space?")) {
+        // This targets the UI class to hide them instantly
+        document.body.classList.add('hide-pt');
+
+        // And we update the DB (as we discussed in the previous step)
+        const currentId = getCurrentNotebookId();
+        await window.NotebookManager.purgePortuguese(currentId);
+    }
 }
 
 // --- 4. LOGICA DESEN ---
