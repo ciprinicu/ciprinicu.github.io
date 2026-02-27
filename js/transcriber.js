@@ -2,21 +2,17 @@
 
 class AudioTranscriber {
     constructor() {
-        // Aici lansăm worker-ul pe un fir separat
         this.worker = new Worker('./js/worker.js', { type: 'module' });
-        
-        // Dacă vrei acuratețe maximă, pune 'Xenova/whisper-small'. 
-        // Dacă vrei viteză, lasă 'Xenova/whisper-base'.
-        this.modelName = 'Xenova/whisper-base'; 
-        
+        this.modelName = 'Xenova/whisper-base';
         this.isReady = false;
         this.installCallback = null;
         this.transcribeResolve = null;
 
-        // Ascultăm ce zice Worker-ul
+        // SINGLETON AUDIO CONTEXT: Create it once and reuse it
+        this.audioContext = null;
+
         this.worker.onmessage = (e) => {
             const { type, data } = e.data;
-
             if (type === 'progress' && this.installCallback) {
                 this.installCallback(data);
             }
@@ -28,74 +24,64 @@ class AudioTranscriber {
                 if (this.transcribeResolve) this.transcribeResolve(data);
                 this.transcribeResolve = null;
             }
-            if (type === 'error') {
-                console.error("Worker Error:", data);
-                if (this.transcribeResolve) this.transcribeResolve(""); // Returnăm gol pe eroare
-            }
         };
     }
 
-    // Funcția pentru Wizard (Instalare)
+    // Helper: Initialize audio context only once
+    getAudioContext() {
+        if (!this.audioContext) {
+            this.audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+        }
+        return this.audioContext;
+    }
+
+    async transcribe(audioBlob) {
+        if (!this.isReady) return "";
+
+        // MUCH FASTER: Reusing the same context
+        const ctx = this.getAudioContext();
+        const arrayBuffer = await audioBlob.arrayBuffer();
+
+        try {
+            const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+            const audioData = audioBuffer.getChannelData(0);
+
+            return new Promise((resolve) => {
+                this.transcribeResolve = resolve;
+                this.worker.postMessage({
+                    type: 'transcribe',
+                    data: {
+                        audio: audioData,
+                        // Add these for speed optimization in the worker
+                        language: 'pt',
+                        task: 'transcribe',
+                        chunk_length_s: 30,
+                        stride_length_s: 5
+                    }
+                });
+            });
+        } catch (e) {
+            console.error("Audio decoding failed", e);
+            return "";
+        }
+    }
+
     install(progressCallback) {
         this.installCallback = (data) => {
-            // Adaptăm formatul pentru Wizard
-            if(data.status === 'progress') {
+            if (data.status === 'progress') {
                 const percent = (data.loaded / data.total) * 100;
                 progressCallback(percent, data.file);
             }
-            if(data.status === 'done') {
-                // Opțional: log
-            }
         };
-
         return new Promise((resolve) => {
             this.installResolve = resolve;
-            // Îi zicem worker-ului să descarce
-            this.worker.postMessage({ 
-                type: 'install', 
-                data: { modelName: this.modelName } 
-            });
+            this.worker.postMessage({ type: 'install', data: { modelName: this.modelName } });
         });
-    }
-
-    // Funcția de transcriere
-    async transcribe(audioBlob) {
-        if (!this.isReady) {
-            console.log("Model not ready, waiting...");
-            // Dacă nu e gata, încercăm să-l inițializăm
-             this.worker.postMessage({ 
-                type: 'install', 
-                data: { modelName: this.modelName } 
-            });
-            // Așteptăm puțin (hack simplu) sau returnăm eroare
-            return ""; 
-        }
-
-        // Convertim Blob-ul aici (e rapid) și trimitem datele pure la Worker
-        const audioData = await this.convertBlobToFloat32(audioBlob);
-
-        return new Promise((resolve) => {
-            this.transcribeResolve = resolve;
-            this.worker.postMessage({ 
-                type: 'transcribe', 
-                data: { audio: audioData } 
-            });
-        });
-    }
-
-    // Helper audio
-    async convertBlobToFloat32(blob) {
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
-        const arrayBuffer = await blob.arrayBuffer();
-        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-        return audioBuffer.getChannelData(0);
     }
 
     init() {
-        if(!location.href.includes("editor")) return;
-        console.log("🔈 Pre-loading AI model...");
-        // Apelăm install cu o funcție goală, doar ca să oblige worker-ul să încarce fișierele în RAM
-        return this.install(() => {}); 
+        if (!location.href.includes("editor")) return;
+        return this.install(() => { });
     }
 }
 

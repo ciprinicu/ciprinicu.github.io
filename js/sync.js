@@ -2,19 +2,24 @@
 let peer = null;
 let html5QrCode = null;
 
+async function getDeviceInfo() {
+    const ua = navigator.userAgent;
+    let deviceName = "Unknown Device";
+    if (/android/i.test(ua)) deviceName = "Android Phone";
+    else if (/iPad|iPhone|iPod/.test(ua)) deviceName = "iPhone/iPad";
+    else if (/Macintosh/.test(ua)) deviceName = "MacBook";
+    else if (/Windows/.test(ua)) deviceName = "Windows PC";
+    else if (/Linux/.test(ua)) deviceName = "Linux System";
+    return deviceName;
+}
+
 async function generateDeviceSeed() {
     let uniqueBrowserId = localStorage.getItem('traduCipri_unique_sid');
     if (!uniqueBrowserId) {
         uniqueBrowserId = Math.random().toString(36).substring(2, 15);
         localStorage.setItem('traduCipri_unique_sid', uniqueBrowserId);
     }
-
-    const info = [
-        navigator.hardwareConcurrency || 4,
-        screen.width + "x" + screen.height,
-        uniqueBrowserId
-    ].join('|');
-
+    const info = [navigator.hardwareConcurrency || 4, screen.width + "x" + screen.height, uniqueBrowserId].join('|');
     let hash = 0;
     for (let i = 0; i < info.length; i++) {
         hash = ((hash << 5) - hash) + info.charCodeAt(i);
@@ -30,19 +35,13 @@ export const SyncManager = {
         if (display) display.innerText = myId;
 
         if (peer && !peer.destroyed) return;
-
         peer = new Peer(myId);
 
-        peer.on('open', (id) => {
+        peer.on('open', () => {
             const qrContainer = document.getElementById('qr-container');
             if (qrContainer && window.QRCode) {
                 qrContainer.innerHTML = '';
-                new QRCode(qrContainer, {
-                    text: id,
-                    width: 160,
-                    height: 160,
-                    correctLevel: QRCode.CorrectLevel.H
-                });
+                new QRCode(qrContainer, { text: myId, width: 160, height: 160 });
             }
             this.renderQuickSyncButton();
         });
@@ -51,42 +50,37 @@ export const SyncManager = {
             conn.on('data', async (data) => {
                 if (data.type === 'REQUEST_DATA') {
                     const allData = await window.NotebookManager.exportAllData();
-                    conn.send({ type: 'SEND_DATA_BACK', payload: allData });
+                    const deviceName = await getDeviceInfo();
+                    conn.send({
+                        type: 'SEND_DATA_BACK',
+                        payload: allData,
+                        senderName: deviceName
+                    });
                 }
             });
         });
     },
 
-    // Aici e șmecheria: randează butonul dacă avem "memorie"
     renderQuickSyncButton() {
         const lastId = localStorage.getItem('lastSyncPeerId');
+        const lastName = localStorage.getItem('lastSyncPeerName') || "Device";
         const container = document.getElementById('quick-sync-container');
         if (!container) return;
 
         if (lastId) {
             container.innerHTML = `
-                <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 12px; text-align: center;">
-                    <p style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 10px;">Ultimul device: ${lastId}</p>
-                    <button id="btn-quick-sync" class="btn-primary" style="width: 100%;">
-                        ⚡ Quick Sync
-                    </button>
+                <div class="quick-sync-card">
+                    <p class="small-label">Last Device: <strong>${lastName} (${lastId})</strong></p>
+                    <button id="btn-quick-sync" class="btn-primary">⚡ Quick Sync</button>
                 </div>
             `;
             document.getElementById('btn-quick-sync').onclick = () => this.connect(lastId);
-        } else {
-            container.innerHTML = '';
         }
     },
 
     async connect(targetId) {
         if (!peer) return;
-
-        // Feedback vizual
-        const btn = document.getElementById('btn-quick-sync');
-        if (btn) btn.innerText = "Connecting...";
-
         const conn = peer.connect(targetId);
-
         conn.on('open', () => {
             localStorage.setItem('lastSyncPeerId', targetId);
             conn.send({ type: 'REQUEST_DATA' });
@@ -94,37 +88,55 @@ export const SyncManager = {
 
         conn.on('data', async (data) => {
             if (data.type === 'SEND_DATA_BACK') {
-                const confirmSync = confirm("Data received. Proceed to import?");
-                if (confirmSync) {
-                    const success = await window.NotebookManager.importData(data.payload);
-                    if (success) location.reload();
-                }
+                localStorage.setItem('lastSyncPeerName', data.senderName);
+                this.showSyncPreview(data.payload, data.senderName);
             }
         });
+    },
 
-        conn.on('error', () => {
-            alert("Couldn't connect. Please be sure that the other device has Settings open.");
-            if (btn) btn.innerText = "⚡ Quick Sync";
-        });
+    showSyncPreview(jsonString, deviceName) {
+        const data = JSON.parse(jsonString);
+        const notebooks = data.notebooks || [];
+
+        // Create the popup dynamically
+        const overlay = document.createElement('div');
+        overlay.className = 'sync-preview-overlay';
+
+        let listHtml = notebooks.map(n => `
+            <div class="preview-item">
+                <span>${n.title || 'Untitled'}</span>
+                <small>${new Date(n.updatedAt).toLocaleDateString()}</small>
+            </div>
+        `).join('');
+
+        overlay.innerHTML = `
+            <div class="sync-preview-modal">
+                <h3>Sync from ${deviceName}</h3>
+                <p>The following notebooks will be imported:</p>
+                <div class="preview-list">${listHtml}</div>
+                <div class="preview-actions">
+                    <button id="confirm-sync" class="btn-primary">Import Everything</button>
+                    <button id="cancel-sync" class="btn-secondary">Cancel</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+
+        document.getElementById('confirm-sync').onclick = async () => {
+            const success = await window.NotebookManager.importData(jsonString);
+            if (success) location.reload();
+        };
+        document.getElementById('cancel-sync').onclick = () => overlay.remove();
     },
 
     async startScanner() {
         const qrRegion = document.getElementById('qr-reader');
         qrRegion.style.display = 'block';
         html5QrCode = new Html5Qrcode("qr-reader");
-
         try {
-            await html5QrCode.start(
-                { facingMode: "environment" },
-                { fps: 15, qrbox: 250 },
-                (decodedText) => {
-                    this.stopScanner();
-                    this.connect(decodedText);
-                }
-            );
-        } catch (err) {
-            qrRegion.style.display = 'none';
-        }
+            await html5QrCode.start({ facingMode: "environment" }, { fps: 15, qrbox: 250 },
+                (decodedText) => { this.stopScanner(); this.connect(decodedText); });
+        } catch (err) { qrRegion.style.display = 'none'; }
     },
 
     stopScanner() {
