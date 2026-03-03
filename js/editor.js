@@ -477,9 +477,11 @@ async function insertTextSmart(ptText, enText) {
     const finalHtml = `<div class="note-block"><div class="source-pt">${cleanPt}</div><div class="target-en">${cleanEn}</div></div>`;
 
     // 4. Insert Everything in one chain
+    // MAGIC FIX: Ne ducem la finalul documentului și inserăm blocul în afara altor div-uri
     editor.chain()
         .focus()
-        .insertContent(finalHtml)
+        .insertContentAt(editor.state.doc.content.size, finalHtml) // Inserează mereu la sfârșit
+        .createParagraphNear() // Adaugă un rând nou gol după pentru siguranță
         .run();
 
     // 5. Auto-scroll to bottom for mobile
